@@ -1614,39 +1614,49 @@ function genFeedback(){
 
 // ── AI Chat ──
 const AI = {
-    src: 'claude',
+    src: 'gemini',
     history: [],
     cfg: {
-        claude: { label: 'Claude - Electron AI', model: 'claude-3-5-sonnet-latest', color:'#a78bfa'},
-        gpt:    { label: 'GPT-4o – OpenAI',       model: 'gpt-4o',                   color:'#22c55e'},
-        gemini: { label: 'Gemini – Google',       model: 'gemini-2.5-flash',         color:'#3b82f6'},
-  },
-  setSrc(btn){
-    document.querySelectorAll('.rp-src-btn').forEach(b=>b.className='rp-src-btn');
-    btn.classList.add('ac-'+btn.dataset.s);
-    this.src=btn.dataset.s;
-    document.getElementById('aiSrcLabel').textContent=this.cfg[this.src].label;
-    Logger.info('AI: '+this.cfg[this.src].label);
-  },
-  addBubble(txt,isUser=false,color=''){
-    const chat=document.getElementById('aiChat');
-    const w=document.createElement('div'); w.className='ai-msg-wrap';
-    const b=document.createElement('div'); b.className='ai-bubble'+(isUser?' user':'');
-    if(color&&!isUser) b.style.borderLeft='3px solid '+color;
-    b.textContent=txt; w.appendChild(b); chat.appendChild(w);
-    chat.scrollTop=chat.scrollHeight; return b;
-  },
-  async send(txt) {
+        claude: { label: 'Claude - Electron AI', model: 'claude-3-5-sonnet-latest', color: '#9b59b6' },
+        gpt:    { label: 'GPT-4o – OpenAI',       model: 'gpt-4o',                   color: 'var(--ok)' },
+        gemini: { label: 'Gemini – Google',       model: 'gemini-2.5-flash',         color: 'var(--info)' }
+    },
+
+    setSrc(btn){
+        document.querySelectorAll('.src-btn').forEach(b=>{ b.classList.remove('src-btn'); });
+        btn.classList.add('ac-'+btn.dataset.s);
+        this.src = btn.dataset.s;
+        const c = this.cfg[this.src];
+        document.getElementById('aiHdLabel').textContent = c.label;
+        document.getElementById('aiHdLabel').style.color = c.color;
+        document.getElementById('aiModel').textContent = c.model;
+        Logger.info('AI source: ' + c.label);
+    },
+
+    openKeys(){
+        Modal.open('keyModal');
+        document.getElementById('kC').value = localStorage.getItem('key_claude') || '';
+        document.getElementById('kG').value = localStorage.getItem('key_gpt') || '';
+        document.getElementById('kGem').value = localStorage.getItem('key_gemini') || '';
+    },
+
+    saveKeys(){
+        [['kC','key_claude'],['kG','key_gpt'],['kGem','key_gemini']].forEach(([id,k])=>{
+            const v = document.getElementById(id).value.trim();
+            if(v) localStorage.setItem(k,v);
+        });
+        Modal.close('keyModal');
+        Toast.show('✔️ Saved', 'API keys updated');
+    },
+
+    send(txt) {
         if(!txt) return;
         
-        // เช็คก่อนว่าในโมเดลปัจจุบันมีอาร์เรย์ history รึยัง ถ้าไม่มีให้สร้างรอไว้
         if (!this.cfg[this.src].history) {
             this.cfg[this.src].history = [];
         }
         
-        // บันทึกประวัติแชทลงไปในโมเดลที่มึงกำลังเลือกใช้งานอยู่จริง
         this.cfg[this.src].history.push({ role: 'user', content: txt });
-        
         this.renderMessage(txt, 'user');
         
         const c = this.cfg[this.src];
@@ -1656,32 +1666,45 @@ const AI = {
             this.renderMessage(`ใส่ ${c.label} API key ก่อนนะ`, 'ai');
             return;
         }
-          headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-          body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,
-            system:'คุณคือ Electron AI ผู้ช่วยส่วนตัวใน Life OS ของ โปรตอน ช่วยเรื่องการเงิน การเทรด XAU/USD สุขภาพ และการจัดการชีวิต ตอบสั้นๆ กระชับ เป็นกันเอง ใช้ภาษาไทย',
-            messages:this.hist})});
-        const d=await r.json(); if(d.error)throw new Error(d.error.message); reply=d.content[0].text;
-      } else if(this.src==='gpt'){
-        if(!key){reply='ใส่ OpenAI API key ก่อนนะ';throw new Error('nokey');}
-        const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',
-          headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-          body:JSON.stringify({model:'gpt-4o',max_tokens:600,messages:[{role:'system',content:'คุณคือ AI ผู้ช่วยใน Life OS ของ โปรตอน ตอบสั้นๆ เป็นกันเอง'},...this.hist]})});
-        const d=await r.json(); if(d.error)throw new Error(d.error.message); reply=d.choices[0].message.content;
-      } else {
-        if(!key){reply='ใส่ Gemini API key ก่อนนะ';throw new Error('nokey');}
-        const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${key}`,{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({contents:this.hist.map(m=>({role:m.role==='assistant'?'model':m.role,parts:[{text:m.content}]})),
-            systemInstruction:{parts:[{text:'คุณคือ AI ผู้ช่วยใน Life OS ตอบสั้นๆ เป็นกันเอง'}]}})});
-        const d=await r.json(); if(d.error)throw new Error(d.error.message); reply=d.candidates[0].content.parts[0].text;
-      }
-      this.hist.push({role:'assistant',content:reply});
-    }catch(e){ if(!reply)reply='[Error] '+e.message.slice(0,60); }
-    thinkBubble.textContent=reply;
-    document.getElementById('aiChat').scrollTop=9999;
-    btn.disabled=false; Logger.info('AI replied');
-  }
-};
+        
+        // --- ส่วนของการยิง API ไปหาหลังบ้านค่ายต่างๆ ---
+        if(this.src === 'gemini') {
+            fetch(`https://generativelanguage.googleapis.com/v1beta/models/${c.model}:generateContent?key=${k}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: this.cfg.gemini.history.map(h => ({
+                        role: h.role === 'ai' ? 'model' : 'user',
+                        parts: [{ text: h.content }]
+                    }))
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.candidates && data.candidates[0].content.parts[0].text) {
+                    const reply = data.candidates[0].content.parts[0].text;
+                    this.cfg.gemini.history.push({ role: 'ai', content: reply });
+                    this.renderMessage(reply, 'ai');
+                } else {
+                    this.renderMessage('[Error] ไม่สามารถอ่านคำตอบจาก Gemini ได้', 'ai');
+                }
+            })
+            .catch(err => {
+                this.renderMessage('[Error] ยิง API ไม่สำเร็จ: ' + err.message, 'ai');
+            });
+        }
+    }, // <-- ปีกกาปิดของฟังก์ชัน send
+
+    renderMessage(txt, side) {
+        const box = document.getElementById('aiChatBox');
+        if(!box) return;
+        const msg = document.createElement('div');
+        msg.className = `msg ${side === 'user' ? 'msg-user' : 'msg-ai'}`;
+        msg.textContent = txt;
+        box.appendChild(msg);
+        box.scrollTop = box.scrollHeight;
+    }
+}; // <-- ปีกกาปิดตัวสุดท้ายของ Object AI ตัวใหญ่
 function setSrc(btn){ AI.setSrc(btn); }
 function sendAI(){ AI.send(); }
 function saveKeys(){
