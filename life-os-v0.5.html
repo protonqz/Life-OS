@@ -1614,11 +1614,12 @@ function genFeedback(){
 
 // ── AI Chat ──
 const AI = {
-  src:'claude', hist:[],
-  cfg:{
-    claude:{label:'Claude · sonnet-4-5',color:'#a78bfa'},
-    gpt:   {label:'GPT-4o · OpenAI',   color:'#22c55e'},
-    gemini:{label:'Gemini · Google',    color:'#3b82f6'},
+    src: 'claude',
+    history: [],
+    cfg: {
+        claude: { label: 'Claude - Electron AI', model: 'claude-3-5-sonnet-latest', color:'#a78bfa'},
+        gpt:    { label: 'GPT-4o – OpenAI',       model: 'gpt-4o',                   color:'#22c55e'},
+        gemini: { label: 'Gemini – Google',       model: 'gemini-2.5-flash',         color:'#3b82f6'},
   },
   setSrc(btn){
     document.querySelectorAll('.rp-src-btn').forEach(b=>b.className='rp-src-btn');
