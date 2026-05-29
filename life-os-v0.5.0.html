@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life OS v0.5</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   LIFE OS v0.5 — Modern Dark Dashboard
+   Inspired by: gradient cards + clean layout
+   Font: Syne (display) + DM Sans (body)
+   Pixel accents preserved
+═══════════════════════════════════════ */
+:root {
+  --bg:       #141414;
+  --bg1:      #1c1c1c;
+  --bg2:      #222222;
+  --bg3:      #2a2a2a;
+  --bg4:      #323232;
+
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+
+  --tx0:      #ffffff;
+  --tx1:      #a0a0a0;
+  --tx2:      #606060;
+
+  /* Accents */
+  --lime:     #c6f135;
+  --lime-d:   rgba(198,241,53,0.15);
+  --purple:   #8b5cf6;
+  --purple-d: rgba(139,92,246,0.2);
+  --teal:     #14b8a6;
+  --teal-d:   rgba(20,184,166,0.2);
+  --orange:   #f97316;
+  --orange-d: rgba(249,115,22,0.2);
+  --pink:     #ec4899;
+  --pink-d:   rgba(236,72,153,0.2);
+  --blue:     #3b82f6;
+  --blue-d:   rgba(59,130,246,0.2);
+  --green:    #22c55e;
+  --green-d:  rgba(34,197,94,0.15);
+  --red:      #ef4444;
+  --red-d:    rgba(239,68,68,0.15);
+  --gold:     #f5c842;
+
+  /* Gradients for cards */
+  --g-purple: linear-gradient(135deg,#4c1d95 0%,#6d28d9 50%,#7c3aed 100%);
+  --g-fire:   linear-gradient(135deg,#78350f 0%,#b45309 50%,#d97706 100%);
+  --g-teal:   linear-gradient(135deg,#134e4a 0%,#0f766e 50%,#0d9488 100%);
+  --g-sage:   linear-gradient(135deg,#1a2e1a 0%,#166534 50%,#15803d 100%);
+
+  --font-d:   'Syne', sans-serif;
+  --font-b:   'DM Sans', sans-serif;
+  --font-px:  'Press Start 2P', monospace;
+
+  --r-sm:  8px;
+  --r-md:  14px;
+  --r-lg:  20px;
+  --r-xl:  28px;
+  --r-2xl: 36px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--tx0);
+  font-family: var(--font-b);
+  font-size: 13px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--lime); }
+
+/* ═══ LAYOUT ═══ */
+.app {
+  display: grid;
+  grid-template-columns: 68px 1fr 320px;
+  min-height: 100vh;
+}
+
+/* ═══════════════════════════════════════
+   LEFT NAV — icon sidebar
+═══════════════════════════════════════ */
+.leftnav {
+  background: var(--bg1);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  gap: 6px;
+  position: sticky; top: 0; height: 100vh;
+  z-index: 100;
+}
+
+.nav-logo {
+  width: 36px; height: 36px;
+  background: var(--lime);
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-px); font-size: 8px;
+  color: #000; margin-bottom: 16px;
+  box-shadow: 0 0 20px rgba(198,241,53,0.35);
+}
+
+.nav-item {
+  width: 44px; height: 44px;
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer;
+  transition: all .2s;
+  color: var(--tx2);
+  position: relative;
+}
+.nav-item:hover { background: var(--bg3); color: var(--tx0); }
+.nav-item.on {
+  background: var(--bg3);
+  color: var(--lime);
+}
+.nav-item.on::before {
+  content: '';
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 20px;
+  background: var(--lime);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-avatar {
+  margin-top: auto;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--blue));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: pointer;
+  border: 2px solid var(--border2);
+  position: relative;
+}
+.nav-avatar::after {
+  content: 'LV24';
+  position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+  background: var(--lime); color: #000;
+  font-family: var(--font-px); font-size: 4px;
+  padding: 2px 4px; border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════════════ */
+.main {
+  padding: 28px 28px 28px 24px;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+/* Top bar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-left h1 {
+  font-family: var(--font-d);
+  font-size: 32px; font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.topbar-left p {
+  font-size: 11px; color: var(--tx2);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-top: 2px;
+}
+.topbar-right { display: flex; gap: 10px; align-items: center; }
+
+.dropdown-btn {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-xl);
+  color: var(--tx0); font-family: var(--font-b);
+  font-size: 13px; padding: 10px 18px;
+  cursor: pointer; display: flex; align-items: center; gap: 8px;
+  transition: all .2s;
+}
+.dropdown-btn:hover { background: var(--bg3); border-color: var(--border2); }
+
+.icon-btn {
+  width: 40px; height: 40px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; color: var(--tx1);
+  transition: all .2s;
+}
+.icon-btn:hover { background: var(--bg3); color: var(--tx0); }
+
+/* Pixel version badge */
+.ver-badge {
+  font-family: var(--font-px); font-size: 6px;
+  color: var(--lime); border: 1px solid var(--lime);
+  padding: 4px 8px; border-radius: 4px;
+  text-shadow: 0 0 8px rgba(198,241,53,0.5);
+}
+
+/* ═══ STAT CARDS (big gradient) ═══ */
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.stat-card {
+  border-radius: var(--r-xl);
+  padding: 20px;
+  position: relative; overflow: hidden;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+  min-height: 140px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+
+.stat-card-icon {
+  width: 36px; height: 36px;
+  background: rgba(0,0,0,0.3);
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; margin-bottom: 24px;
+}
+.stat-card-label {
+  font-size: 10px; font-weight: 500; letter-spacing: 1.5px;
+  text-transform: uppercase; color: rgba(255,255,255,0.6);
+  margin-bottom: 6px;
+}
+.stat-card-value {
+  font-family: var(--font-d);
+  font-size: 36px; font-weight: 700;
+  line-height: 1; color: #fff;
+  display: flex; align-items: flex-end; gap: 6px;
+}
+.stat-card-delta {
+  font-size: 11px; font-weight: 500; padding-bottom: 4px;
+}
+.delta-pos { color: var(--lime); }
+.delta-neg { color: #ff6b6b; }
+
+/* Gradient variants */
+.card-purple { background: var(--g-purple); }
+.card-fire   { background: var(--g-fire); }
+.card-teal   { background: var(--g-teal); }
+.card-sage   { background: var(--g-sage); }
+
+/* Decorative blob on card */
+.stat-card::after {
+  content: '';
+  position: absolute; top: -20px; right: -20px;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+}
+.stat-card::before {
+  content: '';
+  position: absolute; bottom: -30px; right: 20px;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+
+/* ═══ CHART ROW ═══ */
+.chart-row {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 16px;
+}
+
+/* Main chart card */
+.chart-card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  position: relative;
+}
+.chart-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 20px;
+}
+.chart-title {
+  font-family: var(--font-d);
+  font-size: 18px; font-weight: 600;
+}
+.chart-sub { font-size: 11px; color: var(--tx2); margin-top: 2px; }
+
+.chart-canvas-wrap {
+  height: 200px; position: relative;
+}
+#mainChart { width: 100% !important; height: 100% !important; }
+
+/* Finance summary card */
+.fin-summary-card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.fin-sum-title {
+  font-family: var(--font-d);
+  font-size: 16px; font-weight: 600;
+}
+.fin-sum-total {
+  font-family: var(--font-d);
+  font-size: 28px; font-weight: 700;
+  color: var(--lime);
+}
+.fin-sum-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.fin-sum-row:last-child { border: none; }
+.fin-sum-lbl { color: var(--tx1); display: flex; align-items: center; gap: 8px; }
+.fin-sum-lbl span { font-size: 14px; }
+.fin-sum-pos { color: var(--green); font-weight: 600; }
+.fin-sum-neg { color: var(--red); font-weight: 600; }
+
+/* ═══ MINI STATS ROW ═══ */
+.mini-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.mini-card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; transition: all .2s;
+}
+.mini-card:hover { background: var(--bg2); border-color: var(--border2); transform: translateY(-1px); }
+.mini-card-left { display: flex; align-items: center; gap: 10px; }
+.mini-card-icon { font-size: 18px; }
+.mini-card-label { font-size: 12px; color: var(--tx1); }
+.mini-card-val {
+  font-family: var(--font-d);
+  font-size: 22px; font-weight: 700;
+}
+
+/* ═══ BOTTOM ROW ═══ */
+.bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* Trader card */
+.trader-card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  cursor: pointer;
+  transition: border-color .2s;
+}
+.trader-card:hover { border-color: var(--border2); }
+
+.trader-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.trader-title { font-family: var(--font-d); font-size: 16px; font-weight: 600; }
+.live-badge {
+  background: var(--green-d);
+  color: var(--green); border: 1px solid rgba(34,197,94,.3);
+  font-size: 10px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+  display: flex; align-items: center; gap: 4px;
+}
+.live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: lp 1.5s ease-in-out infinite; }
+@keyframes lp { 0%,100%{opacity:1}50%{opacity:.3} }
+
+.sym-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.sym-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px;
+  background: var(--bg2); border-radius: var(--r-md);
+}
+.sym-name { font-weight: 500; font-size: 13px; }
+.sym-price { font-family: var(--font-d); font-size: 15px; font-weight: 600; }
+.sym-chg { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+.chg-up { background: var(--green-d); color: var(--green); }
+.chg-dn { background: var(--red-d); color: var(--red); }
+
+/* AI Signal */
+.ai-sig-box {
+  background: var(--lime-d);
+  border: 1px solid rgba(198,241,53,.25);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.ai-sig-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lime); animation: lp 1s ease-in-out infinite; flex-shrink: 0; }
+.ai-sig-text { font-family: var(--font-px); font-size: 6px; color: var(--lime); line-height: 1.8; }
+
+/* Quest card */
+.quest-card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 24px;
+}
+.quest-head { display: flex; justify-content: space-between; margin-bottom: 16px; }
+.quest-title { font-family: var(--font-d); font-size: 16px; font-weight: 600; }
+.quest-count { font-size: 11px; color: var(--tx2); margin-top: 2px; }
+
+.q-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  margin-bottom: 6px;
+  cursor: pointer; transition: background .15s;
+}
+.q-item:hover { background: var(--bg2); }
+.q-item.done { opacity: 0.5; }
+.q-item.done .q-text { text-decoration: line-through; }
+.q-check {
+  width: 20px; height: 20px; flex-shrink: 0;
+  border: 2px solid var(--bg4);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; transition: all .15s;
+}
+.q-item.done .q-check { background: var(--lime); border-color: var(--lime); color: #000; }
+.q-text { font-size: 12px; flex: 1; }
+.q-xp { font-family: var(--font-px); font-size: 5px; color: var(--lime); }
+.q-diff { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 600; }
+.qd-e { background: var(--green-d); color: var(--green); }
+.qd-m { background: var(--orange-d); color: var(--orange); }
+.qd-h { background: var(--red-d); color: var(--red); }
+
+/* Health card */
+.health-card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 24px;
+}
+.health-head { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.health-title { font-family: var(--font-d); font-size: 16px; font-weight: 600; }
+.sync-badge {
+  font-size: 10px; color: var(--tx2);
+  background: var(--bg2); padding: 3px 10px; border-radius: 20px;
+}
+
+.ring-row { display: flex; justify-content: space-around; margin-bottom: 20px; }
+.ring-w { text-align: center; }
+.ring-lbl { font-size: 10px; color: var(--tx2); margin-top: 6px; }
+.ring-val { font-family: var(--font-d); font-size: 14px; font-weight: 700; margin-top: 2px; }
+
+.h-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.h-stat {
+  background: var(--bg2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+}
+.h-stat-val { font-family: var(--font-d); font-size: 18px; font-weight: 700; color: var(--green); }
+.h-stat-lbl { font-size: 10px; color: var(--tx2); margin-top: 2px; }
+
+/* ═══ PAGES (non-dashboard stubs) ═══ */
+.page { display: none; }
+.page.on { display: block; animation: fadeSlide .25s ease; }
+@keyframes fadeSlide { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ═══════════════════════════════════════
+   RIGHT PANEL — Calendar/Events style
+═══════════════════════════════════════ */
+.rpanel {
+  background: var(--bg1);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* AI Chat header */
+.rp-head {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.rp-head-left { display: flex; align-items: center; gap: 10px; }
+.rp-head-date { font-family: var(--font-d); font-size: 16px; font-weight: 600; }
+.rp-head-sub { font-size: 11px; color: var(--tx2); }
+
+.rp-src-bar {
+  display: flex; gap: 5px; padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.rp-src-btn {
+  flex: 1; background: transparent; border: 1px solid var(--border2);
+  border-radius: 20px; color: var(--tx1);
+  font-family: var(--font-b); font-size: 10px; font-weight: 500;
+  padding: 5px 8px; cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.rp-src-btn:hover { border-color: var(--border2); color: var(--tx0); }
+.rp-src-btn.ac-claude { border-color: var(--purple); color: var(--purple); background: var(--purple-d); }
+.rp-src-btn.ac-gpt    { border-color: var(--green);  color: var(--green);  background: var(--green-d); }
+.rp-src-btn.ac-gemini { border-color: var(--blue);   color: var(--blue);   background: var(--blue-d); }
+.key-btn2 { background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--tx2); padding: 5px 8px; cursor: pointer; font-size: 13px; transition: all .15s; }
+.key-btn2:hover { border-color: var(--border2); color: var(--tx0); }
+
+/* Chat messages */
+.ai-chat {
+  flex: 1; overflow-y: auto;
+  padding: 12px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.ai-msg-wrap { display: flex; flex-direction: column; gap: 2px; }
+.ai-msg-who {
+  font-family: var(--font-px); font-size: 5px;
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 3px;
+}
+.ai-bubble {
+  background: var(--bg2);
+  border-radius: 14px 14px 14px 4px;
+  padding: 10px 14px;
+  font-size: 12px; color: var(--tx0);
+  line-height: 1.6; max-width: 100%;
+}
+.ai-bubble.user {
+  background: var(--purple);
+  border-radius: 14px 14px 4px 14px;
+  align-self: flex-end;
+  color: #fff;
+}
+.thinking-dots span {
+  display: inline-block;
+  animation: td .8s ease-in-out infinite;
+  font-size: 18px; color: var(--tx2);
+}
+.thinking-dots span:nth-child(2) { animation-delay: .15s; }
+.thinking-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes td { 0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)} }
+
+/* AI input */
+.ai-input-wrap {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px;
+}
+.ai-input {
+  flex: 1; background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  color: var(--tx0); font-family: var(--font-b); font-size: 12px;
+  padding: 10px 16px; outline: none;
+  transition: border-color .15s;
+}
+.ai-input:focus { border-color: var(--purple); }
+.ai-input::placeholder { color: var(--tx2); }
+.ai-send {
+  width: 38px; height: 38px;
+  background: var(--purple); border: none; border-radius: 50%;
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s; flex-shrink: 0;
+}
+.ai-send:hover { background: var(--blue); transform: scale(1.05); }
+.ai-send:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+/* System log (bottom right) */
+.sys-log {
+  height: 110px;
+  border-top: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 8px 16px;
+  background: var(--bg);
+}
+.log-line { font-family: monospace; font-size: 9px; color: var(--tx2); margin-bottom: 2px; }
+.log-ok   { color: var(--green); }
+.log-warn { color: var(--orange); }
+.log-err  { color: var(--red); }
+.log-info { color: var(--blue); }
+
+/* ═══ MODALS ═══ */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(12px);
+  z-index: 500; align-items: center; justify-content: center;
+}
+.modal-bg.open { display: flex; animation: fadeSlide .2s ease; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-xl);
+  width: 100%; max-height: 88vh; overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.modal-head {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: 0; background: var(--bg2); z-index: 1;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+}
+.modal-title { font-family: var(--font-d); font-size: 18px; font-weight: 700; }
+.modal-close {
+  background: var(--bg3); border: none; border-radius: 50%;
+  width: 32px; height: 32px; color: var(--tx1);
+  cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.modal-close:hover { background: var(--red-d); color: var(--red); }
+.modal-body { padding: 24px; }
+
+/* Finance modal */
+.fin-modal-summary {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 12px; margin-bottom: 24px;
+}
+.fms-cell {
+  background: var(--bg3); border-radius: var(--r-lg);
+  padding: 16px; text-align: center;
+}
+.fms-val { font-family: var(--font-d); font-size: 20px; font-weight: 700; display: block; margin-bottom: 4px; }
+.fms-lbl { font-size: 10px; color: var(--tx2); }
+
+.fin-section { margin-bottom: 24px; }
+.fin-section-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+}
+.fin-section-title { font-family: var(--font-d); font-size: 14px; font-weight: 600; }
+
+/* Entry card */
+.entry {
+  background: var(--bg3); border-radius: var(--r-lg);
+  padding: 14px 16px; margin-bottom: 8px;
+  position: relative; transition: background .15s;
+}
+.entry:hover { background: var(--bg4); }
+.entry-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.entry-left { display: flex; gap: 12px; align-items: center; }
+.entry-ico { font-size: 22px; }
+.entry-name { font-family: var(--font-d); font-size: 13px; font-weight: 600; }
+.entry-sub { font-size: 11px; color: var(--tx2); margin-top: 2px; }
+.entry-amount { font-family: var(--font-d); font-size: 16px; font-weight: 700; text-align: right; }
+.entry-amount-sub { font-size: 10px; color: var(--tx2); margin-top: 2px; }
+.entry-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; }
+.e-btn {
+  background: transparent; border: 1px solid var(--border2);
+  border-radius: 8px; color: var(--tx2); font-size: 11px;
+  padding: 3px 7px; cursor: pointer; transition: all .15s;
+}
+.e-btn:hover { border-color: var(--lime); color: var(--lime); }
+.e-btn.del:hover { border-color: var(--red); color: var(--red); }
+.prog-track { height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 2px; transition: width .6s ease; }
+.prog-sub { font-size: 10px; color: var(--tx2); margin-top: 5px; }
+
+/* Form */
+.f-group { margin-bottom: 14px; }
+.f-label { font-size: 11px; color: var(--tx2); display: block; margin-bottom: 5px; font-weight: 500; }
+.f-input {
+  width: 100%; background: var(--bg3);
+  border: 1px solid var(--border2); border-radius: var(--r-md);
+  color: var(--tx0); font-family: var(--font-b); font-size: 13px;
+  padding: 10px 14px; outline: none; transition: border-color .15s;
+}
+.f-input:focus { border-color: var(--purple); }
+.f-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.icon-picks { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.ip-btn {
+  font-size: 18px; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 5px 8px; cursor: pointer; transition: all .15s;
+}
+.ip-btn:hover { border-color: var(--lime); transform: scale(1.1); }
+.f-actions { display: flex; gap: 10px; margin-top: 20px; }
+.f-save {
+  flex: 1; background: var(--lime); border: none; border-radius: var(--r-lg);
+  color: #000; font-family: var(--font-d); font-size: 13px; font-weight: 700;
+  padding: 12px; cursor: pointer; transition: opacity .15s;
+}
+.f-save:hover { opacity: .9; }
+.f-cancel {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r-lg); color: var(--tx1);
+  font-family: var(--font-b); font-size: 13px; padding: 12px; cursor: pointer;
+  transition: all .15s;
+}
+.f-cancel:hover { border-color: var(--red); color: var(--red); }
+
+.add-btn {
+  background: transparent; border: 1px solid var(--border2);
+  border-radius: 20px; color: var(--tx1);
+  font-family: var(--font-b); font-size: 11px; font-weight: 500;
+  padding: 6px 14px; cursor: pointer; transition: all .15s;
+}
+.add-btn:hover { border-color: var(--lime); color: var(--lime); }
+
+/* Trader page */
+.trader-full { padding: 0; }
+.trader-grid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
+.panel-card {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--r-xl); padding: 20px;
+}
+.panel-title { font-family: var(--font-d); font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+
+.chart-area-full {
+  height: 220px; position: relative;
+  background: var(--bg); border-radius: var(--r-lg);
+  overflow: hidden; margin-bottom: 14px;
+}
+.chart-area-full canvas { position: absolute; inset: 12px; width: calc(100% - 24px)!important; height: calc(100% - 24px)!important; }
+.chart-overlay { position: absolute; top: 10px; left: 14px; }
+.chart-sym { font-family: var(--font-d); font-size: 13px; font-weight: 600; }
+.chart-pr { font-size: 11px; color: var(--tx2); margin-top: 2px; }
+.chart-price-live { position: absolute; top: 10px; right: 14px; font-family: var(--font-d); font-size: 20px; font-weight: 700; color: var(--lime); }
+
+.stats-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+.strip-cell { background: var(--bg2); border-radius: var(--r-md); padding: 12px; text-align: center; }
+.strip-val { font-family: var(--font-d); font-size: 16px; font-weight: 700; display: block; margin-bottom: 2px; }
+.strip-lbl { font-size: 10px; color: var(--tx2); }
+
+.trade-table { background: var(--bg); border-radius: var(--r-lg); overflow: hidden; }
+.tt-head { padding: 10px 14px; background: var(--bg2); display: flex; justify-content: space-between; align-items: center; }
+.tt-head-title { font-family: var(--font-d); font-size: 13px; font-weight: 600; }
+.tt-row { display: grid; grid-template-columns: 80px 80px 55px 70px 70px 1fr 55px; gap: 8px; padding: 8px 14px; font-size: 11px; border-bottom: 1px solid var(--border); align-items: center; }
+.tt-row.hd { font-size: 10px; color: var(--tx2); background: var(--bg2); border-bottom: 1px solid var(--border2); }
+.tt-row:hover { background: var(--bg2); }
+.tt-tag { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 20px; display: inline-block; }
+.tt-buy { background: var(--green-d); color: var(--green); }
+.tt-sell { background: var(--red-d); color: var(--red); }
+.pnl-p { color: var(--green); font-weight: 600; }
+.pnl-n { color: var(--red); font-weight: 600; }
+
+.bot-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+.bot-c {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--r-md); padding: 12px 8px;
+  text-align: center; cursor: pointer; transition: all .15s; position: relative;
+}
+.bot-c:hover { border-color: var(--lime); }
+.bot-c.sel { border-color: var(--lime); background: var(--lime-d); }
+.bot-ic { font-size: 18px; display: block; margin-bottom: 4px; }
+.bot-nm { font-family: var(--font-px); font-size: 4px; color: var(--lime); margin-bottom: 2px; }
+.bot-ds { font-size: 8px; color: var(--tx2); line-height: 1.3; }
+.bot-acc-tag { position: absolute; top: 4px; right: 5px; font-family: var(--font-px); font-size: 4px; color: var(--green); }
+
+.tog-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--tx1); }
+.tog { width: 36px; height: 20px; background: var(--bg4); border: none; border-radius: 10px; cursor: pointer; position: relative; transition: background .2s; flex-shrink: 0; }
+.tog.on { background: var(--lime); }
+.tog::after { content: ''; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; background: var(--tx2); border-radius: 50%; transition: left .2s, background .2s; }
+.tog.on::after { left: 19px; background: #000; }
+
+.ctrl-row { display: flex; gap: 8px; margin-top: 12px; }
+.ctrl-start {
+  flex: 1; background: var(--green-d); border: 1px solid var(--green);
+  border-radius: var(--r-lg); color: var(--green);
+  font-family: var(--font-d); font-size: 12px; font-weight: 700;
+  padding: 10px; cursor: pointer; transition: all .15s;
+}
+.ctrl-start:hover { background: var(--green); color: #000; }
+.ctrl-stop {
+  flex: 1; background: var(--red-d); border: 1px solid var(--red);
+  border-radius: var(--r-lg); color: var(--red);
+  font-family: var(--font-d); font-size: 12px; font-weight: 700;
+  padding: 10px; cursor: pointer; transition: all .15s;
+}
+.ctrl-stop:hover { background: var(--red); color: #fff; }
+.ctrl-start:disabled, .ctrl-stop:disabled { opacity: .35; cursor: not-allowed; }
+
+.acc-wrap { display: flex; gap: 14px; align-items: center; padding: 14px; background: var(--bg2); border-radius: var(--r-lg); margin-bottom: 10px; }
+.acc-stats { flex: 1; }
+.acc-row { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px; }
+.acc-row .lbl { color: var(--tx2); }
+.acc-bar { height: 3px; background: var(--bg); border-radius: 2px; margin-bottom: 8px; overflow: hidden; }
+.acc-fill { height: 100%; border-radius: 2px; transition: width .8s ease; }
+
+.fb-wrap { background: var(--bg2); border-radius: var(--r-lg); padding: 14px; }
+.fb-list { max-height: 150px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
+.fb-item { display: flex; gap: 8px; background: var(--bg3); border-radius: var(--r-md); padding: 8px 10px; font-size: 11px; }
+.fb-ico { font-size: 14px; flex-shrink: 0; }
+.fb-t { color: var(--tx0); line-height: 1.5; flex: 1; }
+.fb-ts { color: var(--tx2); font-size: 9px; margin-top: 2px; }
+
+.conn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.conn-c { background: var(--bg2); border-radius: var(--r-lg); padding: 14px; position: relative; }
+.conn-nm { font-family: var(--font-d); font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.conn-dt { font-size: 10px; color: var(--tx2); line-height: 1.7; margin-bottom: 10px; }
+.conn-tag { position: absolute; top: 10px; right: 10px; font-size: 9px; padding: 2px 8px; border-radius: 20px; border: 1px solid currentColor; }
+.ct-on { color: var(--green); } .ct-off { color: var(--red); }
+.conn-btn { width: 100%; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--r-md); color: var(--tx0); font-family: var(--font-b); font-size: 11px; padding: 8px; cursor: pointer; transition: all .15s; }
+.conn-btn:hover { border-color: var(--lime); color: var(--lime); }
+.conn-btn.primary { border-color: var(--lime); color: var(--lime); background: var(--lime-d); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  padding: 14px 18px; max-width: 280px; z-index: 900;
+  display: none; animation: slideUp .25s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  border-left: 3px solid var(--lime);
+}
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.toast-title { font-family: var(--font-d); font-size: 13px; font-weight: 700; display: block; margin-bottom: 4px; }
+.toast-msg { font-size: 11px; color: var(--tx1); line-height: 1.5; }
+
+/* Misc */
+.hidden { display: none !important; }
+.s-field { margin-bottom: 10px; }
+.s-label { font-size: 10px; color: var(--tx2); display: block; margin-bottom: 4px; }
+.s-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r-md); color: var(--tx0); font-family: var(--font-b); font-size: 12px; padding: 8px 10px; outline: none; }
+.s-input:focus { border-color: var(--purple); }
+.s-select { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r-md); color: var(--tx0); font-family: var(--font-b); font-size: 12px; padding: 8px 10px; outline: none; cursor: pointer; appearance: none; }
+.s-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- ═══ LEFT ICON NAV ═══ -->
+<nav class="leftnav">
+  <div class="nav-logo">LO</div>
+  <div class="nav-item on" onclick="goto('dashboard',this)" title="Dashboard">🏠</div>
+  <div class="nav-item" onclick="goto('trader',this)" title="AI Trader">📈</div>
+  <div class="nav-item" onclick="goto('finance',this)" title="Finance">💰</div>
+  <div class="nav-item" onclick="goto('health',this)" title="Health">❤️</div>
+  <div class="nav-item" onclick="goto('quest',this)" title="Quests">⚔️</div>
+  <div class="nav-item" onclick="openModal('keyModal')" title="API Keys">🔑</div>
+  <div class="nav-avatar" title="Proton LV24">⚛</div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+  <!-- DASHBOARD PAGE -->
+  <div class="page on" id="page-dashboard">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSubtitle">Life OS — MONTHLY UPDATE</p>
+      </div>
+      <div class="topbar-right">
+        <div class="ver-badge">v0.5</div>
+        <div class="dropdown-btn" id="clockDisplay">Loading...</div>
+        <div class="icon-btn" onclick="showToast('Notifications','No new alerts 🎉','var(--lime)')">🔔</div>
+        <div class="icon-btn" onclick="openModal('keyModal')">⚙️</div>
+      </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stat-cards">
+      <div class="stat-card card-purple" onclick="goto('finance',document.querySelectorAll('.nav-item')[2])">
+        <div class="stat-card-icon">💰</div>
+        <div>
+          <div class="stat-card-label">Total Savings</div>
+          <div class="stat-card-value">
+            ฿<span id="dashSav">0</span>
+            <span class="stat-card-delta delta-pos" id="dashDelta">+5%</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card card-fire" onclick="goto('trader',document.querySelectorAll('.nav-item')[1])">
+        <div class="stat-card-icon">📈</div>
+        <div>
+          <div class="stat-card-label">Trader P&L</div>
+          <div class="stat-card-value">+$1,240<span class="stat-card-delta delta-pos">+12%</span></div>
+        </div>
+      </div>
+      <div class="stat-card card-teal" onclick="goto('health',document.querySelectorAll('.nav-item')[3])">
+        <div class="stat-card-icon">❤️</div>
+        <div>
+          <div class="stat-card-label">Health Score</div>
+          <div class="stat-card-value">85<span class="stat-card-delta" style="font-size:14px;color:rgba(255,255,255,.6);">/100</span></div>
+        </div>
+      </div>
+      <div class="stat-card card-sage" onclick="goto('quest',document.querySelectorAll('.nav-item')[4])">
+        <div class="stat-card-icon">⚔️</div>
+        <div>
+          <div class="stat-card-label">Quests Done</div>
+          <div class="stat-card-value">7<span style="font-size:18px;color:rgba(255,255,255,.5);font-family:var(--font-b);font-weight:300">/10</span><span class="stat-card-delta delta-neg">-12%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Row -->
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div>
+            <div class="chart-title">Portfolio Activity</div>
+            <div class="chart-sub">XAU/USD · Real-time</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="font-family:var(--font-d);font-size:22px;font-weight:700;color:var(--lime)" id="xauLive">2,341.50</div>
+            <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+          </div>
+        </div>
+        <div class="chart-canvas-wrap">
+          <canvas id="mainChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Finance summary -->
+      <div class="fin-summary-card" onclick="openModal('finModal');renderFin('m')">
+        <div>
+          <div class="fin-sum-title">Finance Log</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px">Click to manage</div>
+        </div>
+        <div class="fin-sum-total">฿<span id="finTotalDisp">0</span></div>
+        <div id="finSumRows">
+          <div class="fin-sum-row"><span class="fin-sum-lbl"><span>📊</span> ยังไม่มีข้อมูล</span></div>
+        </div>
+        <button class="add-btn" style="width:100%;text-align:center" onclick="event.stopPropagation();openModal('finModal');renderFin('m')">Open Finance Log →</button>
+      </div>
+    </div>
+
+    <!-- Mini stats -->
+    <div class="mini-row">
+      <div class="mini-card" onclick="showToast('Steps','7,240 steps today — keep it up! 🏃','var(--green)')">
+        <div class="mini-card-left">
+          <div class="mini-card-icon">🏃</div>
+          <div class="mini-card-label">Steps Today</div>
+        </div>
+        <div class="mini-card-val" style="color:var(--green)">7,240</div>
+      </div>
+      <div class="mini-card" onclick="showToast('Sleep','6.5h last night. Try for 8h tonight 😴','var(--blue)')">
+        <div class="mini-card-left">
+          <div class="mini-card-icon">😴</div>
+          <div class="mini-card-label">Sleep</div>
+        </div>
+        <div class="mini-card-val" style="color:var(--blue)">6.5h</div>
+      </div>
+      <div class="mini-card" onclick="goto('trader',document.querySelectorAll('.nav-item')[1])">
+        <div class="mini-card-left">
+          <div class="mini-card-icon">🎯</div>
+          <div class="mini-card-label">Win Rate</div>
+        </div>
+        <div class="mini-card-val" style="color:var(--lime)">68%</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-card-left">
+          <div class="mini-card-icon">⚡</div>
+          <div class="mini-card-label">XP Today</div>
+        </div>
+        <div class="mini-card-val" style="color:var(--orange)">+280</div>
+      </div>
+    </div>
+
+    <!-- Bottom row: Trader + Quest + Health -->
+    <div class="bottom-row">
+
+      <!-- Trader mini -->
+      <div class="trader-card" onclick="goto('trader',document.querySelectorAll('.nav-item')[1])">
+        <div class="trader-head">
+          <div class="trader-title">AI Trader</div>
+          <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+        </div>
+        <div class="sym-list">
+          <div class="sym-row">
+            <span class="sym-name">XAU/USD</span>
+            <span class="sym-price">2,341.50</span>
+            <span class="sym-chg chg-up">+0.84%</span>
+          </div>
+          <div class="sym-row">
+            <span class="sym-name">BTC/USD</span>
+            <span class="sym-price">93,240</span>
+            <span class="sym-chg chg-up">+2.41%</span>
+          </div>
+          <div class="sym-row">
+            <span class="sym-name">EUR/USD</span>
+            <span class="sym-price">1.0842</span>
+            <span class="sym-chg chg-dn">-0.12%</span>
+          </div>
+        </div>
+        <div class="ai-sig-box">
+          <div class="ai-sig-dot"></div>
+          <div class="ai-sig-text">AI SIGNAL: BUY XAU/USD<br>@ 2,341.50 · TP 2,385</div>
+        </div>
+      </div>
+
+      <!-- Quest mini -->
+      <div class="quest-card">
+        <div class="quest-head">
+          <div>
+            <div class="quest-title">Daily Quests</div>
+            <div class="quest-count">7 / 10 completed</div>
+          </div>
+          <div style="font-family:var(--font-d);font-size:22px;font-weight:700;color:var(--lime)">70%</div>
+        </div>
+        <div class="q-item done" onclick="toggleQ(this)">
+          <div class="q-check">✓</div>
+          <div class="q-text">ออกกำลังกาย 30 นาที</div>
+          <div class="q-xp">+50</div>
+          <div class="q-diff qd-e">EASY</div>
+        </div>
+        <div class="q-item done" onclick="toggleQ(this)">
+          <div class="q-check">✓</div>
+          <div class="q-text">ดื่มน้ำ 8 แก้ว</div>
+          <div class="q-xp">+20</div>
+          <div class="q-diff qd-e">EASY</div>
+        </div>
+        <div class="q-item" onclick="toggleQ(this)">
+          <div class="q-check"></div>
+          <div class="q-text">ทบทวนพอร์ตลงทุน</div>
+          <div class="q-xp">+80</div>
+          <div class="q-diff qd-m">MED</div>
+        </div>
+        <div class="q-item" onclick="toggleQ(this)">
+          <div class="q-check"></div>
+          <div class="q-text">วางแผนงบเดือนหน้า</div>
+          <div class="q-xp">+120</div>
+          <div class="q-diff qd-h">HARD</div>
+        </div>
+      </div>
+
+      <!-- Health mini -->
+      <div class="health-card">
+        <div class="health-head">
+          <div class="health-title">Health</div>
+          <div class="sync-badge">sync 2m ago</div>
+        </div>
+        <div class="ring-row">
+          <div class="ring-w">
+            <svg width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="22" fill="none" stroke="#222" stroke-width="5"/>
+              <circle cx="28" cy="28" r="22" fill="none" stroke="var(--green)" stroke-width="5"
+                stroke-dasharray="138.2" stroke-dashoffset="25" transform="rotate(-90 28 28)"
+                style="filter:drop-shadow(0 0 4px var(--green))"/>
+              <text x="28" y="33" text-anchor="middle" font-family="Syne" font-size="11" font-weight="700" fill="white">82</text>
+            </svg>
+            <div class="ring-lbl">Health</div>
+          </div>
+          <div class="ring-w">
+            <svg width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="22" fill="none" stroke="#222" stroke-width="5"/>
+              <circle cx="28" cy="28" r="22" fill="none" stroke="var(--blue)" stroke-width="5"
+                stroke-dasharray="138.2" stroke-dashoffset="55" transform="rotate(-90 28 28)"
+                style="filter:drop-shadow(0 0 4px var(--blue))"/>
+              <text x="28" y="33" text-anchor="middle" font-family="Syne" font-size="11" font-weight="700" fill="white">60</text>
+            </svg>
+            <div class="ring-lbl">Sleep</div>
+          </div>
+          <div class="ring-w">
+            <svg width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="22" fill="none" stroke="#222" stroke-width="5"/>
+              <circle cx="28" cy="28" r="22" fill="none" stroke="var(--orange)" stroke-width="5"
+                stroke-dasharray="138.2" stroke-dashoffset="33" transform="rotate(-90 28 28)"
+                style="filter:drop-shadow(0 0 4px var(--orange))"/>
+              <text x="28" y="33" text-anchor="middle" font-family="Syne" font-size="11" font-weight="700" fill="white">76</text>
+            </svg>
+            <div class="ring-lbl">Activity</div>
+          </div>
+        </div>
+        <div class="h-stats">
+          <div class="h-stat"><div class="h-stat-val">7,240</div><div class="h-stat-lbl">steps</div></div>
+          <div class="h-stat"><div class="h-stat-val">6.5h</div><div class="h-stat-lbl">sleep</div></div>
+          <div class="h-stat"><div class="h-stat-val">72kg</div><div class="h-stat-lbl">weight</div></div>
+          <div class="h-stat"><div class="h-stat-val">1,840</div><div class="h-stat-lbl">kcal</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /dashboard -->
+
+  <!-- TRADER PAGE -->
+  <div class="page" id="page-trader">
+    <div class="topbar" style="margin-bottom:20px">
+      <div class="topbar-left"><h1>AI Trader</h1><p>XAU/USD · MT5 / Exness</p></div>
+      <div class="topbar-right">
+        <div class="ver-badge">v0.5</div>
+        <div class="live-badge"><div class="live-dot"></div>MARKET OPEN</div>
+      </div>
+    </div>
+    <div class="trader-grid">
+      <div>
+        <!-- Chart -->
+        <div class="panel-card" style="margin-bottom:16px;padding:20px;">
+          <div class="chart-area-full">
+            <div class="chart-overlay"><div class="chart-sym">XAU/USD · M5</div><div class="chart-pr">MetaTrader 5</div></div>
+            <div class="chart-price-live" id="traderPrice">2,341.50</div>
+            <canvas id="traderCanvas"></canvas>
+          </div>
+          <div class="stats-strip">
+            <div class="strip-cell"><span class="strip-val" style="color:var(--green)">68.4%</span><span class="strip-lbl">Win Rate</span></div>
+            <div class="strip-cell"><span class="strip-val" style="color:var(--green)">+$1,240</span><span class="strip-lbl">Total P&L</span></div>
+            <div class="strip-cell"><span class="strip-val">47</span><span class="strip-lbl">Trades</span></div>
+            <div class="strip-cell"><span class="strip-val" style="color:var(--orange)">-3.2%</span><span class="strip-lbl">Max DD</span></div>
+          </div>
+        </div>
+        <!-- Trade log -->
+        <div class="panel-card">
+          <div class="tt-head"><div class="tt-head-title">Trade History</div><span style="font-size:11px;color:var(--tx2)">47 trades</span></div>
+          <div class="tt-row hd"><span>Time</span><span>Symbol</span><span>Type</span><span>Entry</span><span>Exit</span><span>P&L</span><span>Status</span></div>
+          <div id="tradeRows"></div>
+        </div>
+      </div>
+      <!-- Right controls -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <!-- Connection -->
+        <div class="panel-card">
+          <div class="panel-title">Connection</div>
+          <div class="conn-row">
+            <div class="conn-c">
+              <div class="conn-tag ct-off" id="mt5Tag">OFFLINE</div>
+              <div class="conn-nm">MetaTrader 5</div>
+              <div class="conn-dt">Exness-MT5Real<br>Account: —</div>
+              <button class="conn-btn primary" onclick="openModal('mt5Modal')">⚡ Connect</button>
+            </div>
+            <div class="conn-c">
+              <div class="conn-tag ct-off" id="exTag">OFFLINE</div>
+              <div class="conn-nm">Exness</div>
+              <div class="conn-dt">ECN Spread<br>Global</div>
+              <button class="conn-btn" onclick="openModal('exModal')">Config</button>
+            </div>
+          </div>
+        </div>
+        <!-- Bot type -->
+        <div class="panel-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div class="panel-title" style="margin:0">Bot Type</div>
+            <div style="font-size:11px;color:var(--lime);font-weight:600" id="botLabel">Trend Follow</div>
+          </div>
+          <div class="bot-grid">
+            <div class="bot-c sel" onclick="selBot(this,'Trend Follow')"><div class="bot-acc-tag">64%</div><span class="bot-ic">📊</span><div class="bot-nm">TREND</div><div class="bot-ds">Momentum</div></div>
+            <div class="bot-c" onclick="selBot(this,'Scalper')"><div class="bot-acc-tag">71%</div><span class="bot-ic">⚡</span><div class="bot-nm">SCALP</div><div class="bot-ds">Fast in/out</div></div>
+            <div class="bot-c" onclick="selBot(this,'Grid Bot')"><div class="bot-acc-tag">58%</div><span class="bot-ic">🔲</span><div class="bot-nm">GRID</div><div class="bot-ds">Range orders</div></div>
+            <div class="bot-c" onclick="selBot(this,'Mean Rev')"><div class="bot-acc-tag">62%</div><span class="bot-ic">↩️</span><div class="bot-nm">MEAN</div><div class="bot-ds">Reversion</div></div>
+            <div class="bot-c" onclick="selBot(this,'News Bot')"><div class="bot-acc-tag">55%</div><span class="bot-ic">📰</span><div class="bot-nm">NEWS</div><div class="bot-ds">Sentiment</div></div>
+            <div class="bot-c" onclick="selBot(this,'Custom')"><div class="bot-acc-tag">—</div><span class="bot-ic">🔧</span><div class="bot-nm">CUSTOM</div><div class="bot-ds">Your logic</div></div>
+          </div>
+        </div>
+        <!-- Settings -->
+        <div class="panel-card">
+          <div class="panel-title">Settings</div>
+          <div class="s-grid2">
+            <div class="s-field"><label class="s-label">Symbol</label><select class="s-select"><option>XAU/USD</option><option>EUR/USD</option><option>BTC/USD</option><option>US30</option></select></div>
+            <div class="s-field"><label class="s-label">Timeframe</label><select class="s-select"><option>M5</option><option>M15</option><option>H1</option><option>H4</option></select></div>
+            <div class="s-field"><label class="s-label">Lot Size</label><input class="s-input" type="number" value="0.01" step="0.01"/></div>
+            <div class="s-field"><label class="s-label">Max DD %</label><input class="s-input" type="number" value="5"/></div>
+          </div>
+          <div class="tog-row"><span>Auto TP/SL</span><button class="tog on" onclick="this.classList.toggle('on')"></button></div>
+          <div class="tog-row"><span>News Filter</span><button class="tog on" onclick="this.classList.toggle('on')"></button></div>
+          <div class="tog-row"><span>Risk Manager</span><button class="tog on" onclick="this.classList.toggle('on')"></button></div>
+          <div class="ctrl-row">
+            <button class="ctrl-start" id="btnStart" onclick="startBot()">▶ Start Bot</button>
+            <button class="ctrl-stop" id="btnStop" onclick="stopBot()" disabled>■ Stop</button>
+          </div>
+        </div>
+        <!-- Accuracy -->
+        <div class="panel-card">
+          <div class="panel-title">Accuracy</div>
+          <div class="acc-wrap">
+            <svg width="64" height="64" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="26" fill="none" stroke="var(--bg4)" stroke-width="6"/>
+              <circle cx="32" cy="32" r="26" fill="none" stroke="var(--lime)" stroke-width="6"
+                stroke-dasharray="163.4" stroke-dashoffset="52" transform="rotate(-90 32 32)"
+                style="filter:drop-shadow(0 0 6px var(--lime))"/>
+              <text x="32" y="30" text-anchor="middle" font-family="Syne" font-size="10" font-weight="800" fill="var(--lime)">68%</text>
+              <text x="32" y="43" text-anchor="middle" font-family="DM Sans" font-size="8" fill="var(--tx2)">acc</text>
+            </svg>
+            <div class="acc-stats">
+              <div class="acc-row"><span class="lbl">Win (32)</span><span style="color:var(--green)">68%</span></div>
+              <div class="acc-bar"><div class="acc-fill" style="width:68%;background:var(--green)"></div></div>
+              <div class="acc-row"><span class="lbl">Loss (15)</span><span style="color:var(--red)">32%</span></div>
+              <div class="acc-bar"><div class="acc-fill" style="width:32%;background:var(--red)"></div></div>
+              <div class="acc-row" style="margin-top:6px"><span class="lbl">Avg+</span><span style="color:var(--green)">$42</span></div>
+              <div class="acc-row"><span class="lbl">Avg−</span><span style="color:var(--red)">$28</span></div>
+              <div class="acc-row"><span class="lbl">RR</span><span style="color:var(--lime)">1.5:1</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- Feedback -->
+        <div class="panel-card">
+          <div class="panel-title">AI Feedback</div>
+          <div class="fb-wrap">
+            <div class="fb-list" id="fbList">
+              <div class="fb-item"><div class="fb-ico">🔍</div><div><div class="fb-t">Trend bot performing well on XAU breakouts.</div><div class="fb-ts">08:42</div></div></div>
+              <div class="fb-item"><div class="fb-ico">⚠️</div><div><div class="fb-t">High slippage during news events detected.</div><div class="fb-ts" style="color:var(--orange)">07:15</div></div></div>
+            </div>
+            <button onclick="genFeedback()" style="width:100%;background:var(--blue-d);border:1px solid rgba(59,130,246,.3);border-radius:var(--r-md);color:var(--blue);font-family:var(--font-b);font-size:12px;font-weight:600;padding:9px;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='var(--blue)';this.style.color='#fff'" onmouseout="this.style.background='var(--blue-d)';this.style.color='var(--blue)'">⟳ Generate Analysis</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /trader -->
+
+  <!-- FINANCE PAGE -->
+  <div class="page" id="page-finance">
+    <div class="topbar" style="margin-bottom:20px">
+      <div class="topbar-left"><h1>Finance Log</h1><p>Loans · Savings · Expenses</p></div>
+      <div class="topbar-right">
+        <div style="font-family:var(--font-d);font-size:22px;font-weight:700;color:var(--lime)">฿<span id="fpSav">0</span></div>
+      </div>
+    </div>
+    <div class="fin-modal-summary" id="fpSum"></div>
+    <div class="fin-section"><div class="fin-section-head"><div class="fin-section-title" style="color:var(--gold)">Loans</div><button class="add-btn" onclick="openAdd('loan')">+ Add Loan</button></div><div id="fpLoans"></div></div>
+    <div class="fin-section"><div class="fin-section-head"><div class="fin-section-title" style="color:var(--green)">Savings</div><button class="add-btn" onclick="openAdd('saving')">+ Add Saving</button></div><div id="fpSavings"></div></div>
+    <div class="fin-section"><div class="fin-section-head"><div class="fin-section-title" style="color:var(--blue)">Expenses</div><button class="add-btn" onclick="openAdd('expense')">+ Add Expense</button></div><div id="fpExp"></div></div>
+  </div>
+
+  <!-- HEALTH stub -->
+  <div class="page" id="page-health">
+    <div class="topbar" style="margin-bottom:20px"><div class="topbar-left"><h1>Health</h1><p>Coming in v0.6</p></div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
+      <div class="stat-card card-sage" style="min-height:120px"><div class="stat-card-icon">🏃</div><div><div class="stat-card-label">Steps</div><div class="stat-card-value">7,240</div></div></div>
+      <div class="stat-card card-teal" style="min-height:120px"><div class="stat-card-icon">😴</div><div><div class="stat-card-label">Sleep</div><div class="stat-card-value">6.5h</div></div></div>
+      <div class="stat-card card-purple" style="min-height:120px"><div class="stat-card-icon">⚖️</div><div><div class="stat-card-label">Weight</div><div class="stat-card-value">72<span style="font-size:18px">kg</span></div></div></div>
+    </div>
+    <div style="text-align:center;padding:40px;color:var(--tx2);font-family:var(--font-px);font-size:7px;line-height:3">Full Health Module → v0.6</div>
+  </div>
+
+  <!-- QUEST stub -->
+  <div class="page" id="page-quest">
+    <div class="topbar" style="margin-bottom:20px"><div class="topbar-left"><h1>Quests</h1><p>Daily · Weekly · Achievements</p></div><div class="topbar-right"><div style="font-family:var(--font-d);font-size:22px;font-weight:700;color:var(--lime)">7/10</div></div></div>
+    <div class="quest-card" style="max-width:600px">
+      <div class="quest-head"><div><div class="quest-title">Today's Quests</div><div class="quest-count">7 completed · 280 XP earned</div></div></div>
+      <div class="q-item done" onclick="toggleQ(this)"><div class="q-check">✓</div><div class="q-text">ออกกำลังกาย 30 นาที</div><div class="q-xp">+50</div><div class="q-diff qd-e">EASY</div></div>
+      <div class="q-item done" onclick="toggleQ(this)"><div class="q-check">✓</div><div class="q-text">ดื่มน้ำ 8 แก้ว</div><div class="q-xp">+20</div><div class="q-diff qd-e">EASY</div></div>
+      <div class="q-item" onclick="toggleQ(this)"><div class="q-check"></div><div class="q-text">ทบทวนพอร์ตลงทุน</div><div class="q-xp">+80</div><div class="q-diff qd-m">MED</div></div>
+      <div class="q-item" onclick="toggleQ(this)"><div class="q-check"></div><div class="q-text">วางแผนงบเดือนหน้า</div><div class="q-xp">+120</div><div class="q-diff qd-h">HARD</div></div>
+      <div class="q-item" onclick="toggleQ(this)"><div class="q-check"></div><div class="q-text">เช็ค AI signal XAU/USD</div><div class="q-xp">+60</div><div class="q-diff qd-m">MED</div></div>
+    </div>
+  </div>
+
+</main><!-- /main -->
+
+<!-- ═══ RIGHT PANEL — Chat ═══ -->
+<aside class="rpanel">
+  <div class="rp-head">
+    <div class="rp-head-left">
+      <div>
+        <div class="rp-head-date">Electron AI</div>
+        <div class="rp-head-sub" id="aiSrcLabel">Claude — sonnet-4-5</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button class="key-btn2" onclick="openModal('keyModal')">🔑</button>
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime);align-self:center;animation:lp 2s infinite"></div>
+    </div>
+  </div>
+
+  <!-- Source selector -->
+  <div class="rp-src-bar">
+    <button class="rp-src-btn ac-claude" data-s="claude" onclick="setSrc(this)">🤖 Claude</button>
+    <button class="rp-src-btn" data-s="gpt" onclick="setSrc(this)">✨ GPT</button>
+    <button class="rp-src-btn" data-s="gemini" onclick="setSrc(this)">💎 Gemini</button>
+  </div>
+
+  <!-- Messages -->
+  <div class="ai-chat" id="aiChat">
+    <div class="ai-msg-wrap">
+      <div class="ai-bubble">สวัสดี โปรตอน! Life OS v0.5 พร้อมแล้ว 🚀<br>ใส่ API key แล้วคุยกับกูได้เลย หรือถามอะไรก็ได้!</div>
+    </div>
+    <div class="ai-msg-wrap">
+      <div class="ai-bubble">XAU/USD มีสัญญาณ BUY วันนี้ อยากดู analysis มั้ย? 📈</div>
+    </div>
+  </div>
+
+  <div class="ai-input-wrap">
+    <input class="ai-input" id="aiIn" placeholder="ถาม Electron AI..." onkeydown="if(event.key==='Enter')sendAI()"/>
+    <button class="ai-send" id="aiSendBtn" onclick="sendAI()">➤</button>
+  </div>
+
+  <!-- System log -->
+  <div class="sys-log" id="sysLog">
+    <div class="log-line log-ok">[boot] Life OS v0.5 ready</div>
+    <div class="log-line log-info">[ui] Modern dark theme loaded</div>
+    <div class="log-line">[fin] Finance module ready</div>
+    <div class="log-line log-warn">[mt5] Not connected</div>
+    <div class="log-line">[ai] Electron AI standby</div>
+  </div>
+</aside>
+
+</div><!-- /app -->
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Finance Modal -->
+<div class="modal-bg" id="finModal">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-head">
+      <div class="modal-title">💰 Finance Log</div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div style="font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--green)">฿<span id="mSav">0</span></div>
+        <button class="modal-close" onclick="closeModal('finModal')">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="fin-modal-summary" id="mSum"></div>
+      <div class="fin-section"><div class="fin-section-head"><div class="fin-section-title" style="color:var(--gold)">Loans</div><button class="add-btn" onclick="openAdd('loan')">+ Add</button></div><div id="mLoans"></div></div>
+      <div class="fin-section"><div class="fin-section-head"><div class="fin-section-title" style="color:var(--green)">Savings</div><button class="add-btn" onclick="openAdd('saving')">+ Add</button></div><div id="mSavings"></div></div>
+      <div class="fin-section"><div class="fin-section-head"><div class="fin-section-title" style="color:var(--blue)">Expenses</div><button class="add-btn" onclick="openAdd('expense')">+ Add</button></div><div id="mExp"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit -->
+<div class="modal-bg" id="addModal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-head"><div class="modal-title" id="addTitle">Add Entry</div><button class="modal-close" onclick="closeModal('addModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="f-group"><label class="f-label">ชื่อรายการ</label><input class="f-input" id="fName" placeholder="เช่น บ้านลลิล, Toyota Yaris..."/></div>
+      <div id="fLoan">
+        <div class="f-grid2">
+          <div class="f-group"><label class="f-label">ยอดผ่อน/เดือน (฿)</label><input class="f-input" id="fMo" type="number" placeholder="12500"/></div>
+          <div class="f-group"><label class="f-label">งวดทั้งหมด</label><input class="f-input" id="fTotal" type="number" placeholder="120"/></div>
+          <div class="f-group"><label class="f-label">จ่ายไปแล้ว (งวด)</label><input class="f-input" id="fPaid" type="number" placeholder="24"/></div>
+          <div class="f-group"><label class="f-label">Due (วันที่ของเดือน)</label><input class="f-input" id="fDue" type="number" min="1" max="31" placeholder="5"/></div>
+        </div>
+      </div>
+      <div id="fSave" class="hidden">
+        <div class="f-grid2">
+          <div class="f-group"><label class="f-label">ยอดออมปัจจุบัน (฿)</label><input class="f-input" id="fBal" type="number" placeholder="50000"/></div>
+          <div class="f-group"><label class="f-label">ออม/เดือน (฿)</label><input class="f-input" id="fSmo" type="number" placeholder="5000"/></div>
+        </div>
+        <div class="f-group"><label class="f-label">เป้าหมาย (฿)</label><input class="f-input" id="fGoal" type="number" placeholder="200000"/></div>
+      </div>
+      <div id="fExp" class="hidden">
+        <div class="f-grid2">
+          <div class="f-group"><label class="f-label">จำนวน/เดือน (฿)</label><input class="f-input" id="fExpAmt" type="number" placeholder="2000"/></div>
+          <div class="f-group"><label class="f-label">Due (วันที่)</label><input class="f-input" id="fExpDue" type="number" min="1" max="31" placeholder="1"/></div>
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Icon</label>
+        <div class="icon-picks">
+          <button class="ip-btn" onclick="setIco('🏠')">🏠</button><button class="ip-btn" onclick="setIco('🚗')">🚗</button>
+          <button class="ip-btn" onclick="setIco('🛵')">🛵</button><button class="ip-btn" onclick="setIco('💳')">💳</button>
+          <button class="ip-btn" onclick="setIco('💎')">💎</button><button class="ip-btn" onclick="setIco('🏦')">🏦</button>
+          <button class="ip-btn" onclick="setIco('🎓')">🎓</button><button class="ip-btn" onclick="setIco('💡')">💡</button>
+          <button class="ip-btn" onclick="setIco('⚡')">⚡</button><button class="ip-btn" onclick="setIco('📱')">📱</button>
+        </div>
+        <input class="f-input" id="fIcon" placeholder="🏠" style="width:56px;text-align:center;font-size:18px;margin-top:6px"/>
+      </div>
+      <div class="f-actions"><button class="f-save" onclick="saveEntry()">Save</button><button class="f-cancel" onclick="closeModal('addModal')">Cancel</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- MT5 -->
+<div class="modal-bg" id="mt5Modal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-head"><div class="modal-title">⚡ Connect MT5</div><button class="modal-close" onclick="closeModal('mt5Modal')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:var(--orange-d);border:1px solid rgba(249,115,22,.3);border-radius:var(--r-md);padding:12px;font-size:11px;color:var(--tx0);line-height:1.8;margin-bottom:16px">⚠ ต้องใช้ <strong style="color:var(--gold)">Python MT5 Bridge</strong> เชื่อมต่อ — สร้างใน v0.6</div>
+      <div class="f-group"><label class="f-label">Account Number</label><input class="f-input" id="mt5Acc" placeholder="12345678"/></div>
+      <div class="f-group"><label class="f-label">Password</label><input class="f-input" id="mt5Pass" type="password" placeholder="••••••"/></div>
+      <div class="f-group"><label class="f-label">Server</label><select class="f-input" style="cursor:pointer" id="mt5Srv"><option>Exness-MT5Real</option><option>Exness-MT5Real2</option><option>Exness-MT5Trial</option></select></div>
+      <div class="f-actions"><button class="f-save" onclick="connectMT5()">Connect</button><button class="f-cancel" onclick="closeModal('mt5Modal')">Cancel</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Exness -->
+<div class="modal-bg" id="exModal">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-head"><div class="modal-title">⚙ Exness Config</div><button class="modal-close" onclick="closeModal('exModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="f-group"><label class="f-label">Exness Login</label><input class="f-input" id="exUid" placeholder="12345678"/></div>
+      <div class="f-group"><label class="f-label">Account Type</label><select class="f-input" style="cursor:pointer"><option>Standard</option><option>Pro</option><option>Raw Spread</option><option>Zero</option></select></div>
+      <div class="f-actions"><button class="f-save" onclick="saveEx()">Save</button><button class="f-cancel" onclick="closeModal('exModal')">Cancel</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- API Keys -->
+<div class="modal-bg" id="keyModal">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-head"><div class="modal-title">🔑 API Keys</div><button class="modal-close" onclick="closeModal('keyModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="f-group"><label class="f-label" style="color:#a78bfa">Claude (Anthropic)</label><input class="f-input" id="kC" type="password" placeholder="sk-ant-..."/></div>
+      <div class="f-group"><label class="f-label" style="color:var(--green)">GPT (OpenAI)</label><input class="f-input" id="kG" type="password" placeholder="sk-..."/></div>
+      <div class="f-group"><label class="f-label" style="color:var(--blue)">Gemini (Google)</label><input class="f-input" id="kGem" type="password" placeholder="AIza..."/></div>
+      <div style="font-size:10px;color:var(--tx2);margin:10px 0;line-height:1.8">🔒 Keys stored in localStorage only</div>
+      <div class="f-actions"><button class="f-save" onclick="saveKeys()">Save Keys</button><button class="f-cancel" onclick="closeModal('keyModal')">Cancel</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="toast-title" id="tTitle">—</span>
+  <span class="toast-msg" id="tMsg">—</span>
+</div>
+
+<script>
+'use strict';
+
+// ── Clock ──
+const Clock = {
+  init(){
+    const tick=()=>{
+      const n=new Date(),p=v=>String(v).padStart(2,'0');
+      const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const mos=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const s=`${days[n.getDay()]}, ${n.getDate()} ${mos[n.getMonth()]} · ${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
+      document.getElementById('clockDisplay').textContent=s;
+    };
+    tick(); setInterval(tick,1000);
+  }
+};
+
+// ── Logger ──
+const Logger = {
+  log(msg,type=''){
+    const el=document.getElementById('sysLog');
+    if(!el)return;
+    const l=document.createElement('div'); l.className='log-line'+(type?' log-'+type:'');
+    const n=new Date(); const t=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+    l.textContent=`[${t}] ${msg}`; el.appendChild(l); el.scrollTop=el.scrollHeight;
+  },
+  ok(m){this.log(m,'ok');}, info(m){this.log(m,'info');}, warn(m){this.log(m,'warn');}, err(m){this.log(m,'err');}
+};
+
+// ── Toast ──
+let _tt;
+function showToast(title,msg,color='var(--lime)'){
+  document.getElementById('tTitle').textContent=title;
+  document.getElementById('tMsg').textContent=msg;
+  const el=document.getElementById('toast');
+  el.style.borderLeftColor=color;
+  el.style.display='block'; el.style.animation='none';
+  void el.offsetWidth; el.style.animation='slideUp .25s ease';
+  clearTimeout(_tt); _tt=setTimeout(()=>el.style.display='none',4000);
+}
+
+// ── Router ──
+function goto(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  const titles={dashboard:['Dashboard','Life OS — Monthly Update'],trader:['AI Trader','XAU/USD · MT5 / Exness'],finance:['Finance Log','Loans · Savings · Expenses'],health:['Health','Track your wellbeing'],quest:['Quests','Daily · Weekly · Achievements']};
+  if(titles[id]){
+    const t=document.getElementById('pageTitle'),s=document.getElementById('pageSubtitle');
+    if(t)t.textContent=titles[id][0];
+    if(s)s.textContent=titles[id][1];
+  }
+  Logger.info('Page: '+id);
+  if(id==='finance') Finance.renderFin('fp');
+  if(id==='trader'){ setTimeout(()=>Charts.buildTrader(),100); TradeLog.render(); }
+}
+
+// ── Modal ──
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ── Charts ──
+const Charts = {
+  buildMain(){
+    const canvas=document.getElementById('mainChart');
+    if(!canvas)return;
+    const draw=()=>{
+      canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight;
+      const W=canvas.width,H=canvas.height;
+      const ctx=canvas.getContext('2d');
+      // Smooth line chart
+      const pts=[]; let p=2310;
+      for(let i=0;i<40;i++){ p+=(Math.random()-.46)*12; pts.push(Math.max(2280,Math.min(2380,p))); }
+      const min=Math.min(...pts)-5, max=Math.max(...pts)+5;
+      const yS=v=>H-((v-min)/(max-min))*H*0.85-H*0.08;
+      const xS=W/(pts.length-1);
+      // Gradient fill
+      const grad=ctx.createLinearGradient(0,0,0,H);
+      grad.addColorStop(0,'rgba(198,241,53,0.2)');
+      grad.addColorStop(1,'rgba(198,241,53,0)');
+      ctx.beginPath();
+      pts.forEach((v,i)=>{ const x=i*xS,y=yS(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+      ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
+      ctx.fillStyle=grad; ctx.fill();
+      // Line
+      ctx.beginPath();
+      pts.forEach((v,i)=>{ const x=i*xS,y=yS(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+      ctx.strokeStyle='var(--lime)'; ctx.lineWidth=2; ctx.stroke();
+      // Dots on peaks
+      pts.forEach((v,i)=>{
+        if(i>0&&i<pts.length-1&&(v>pts[i-1]&&v>pts[i+1])){
+          ctx.beginPath(); ctx.arc(i*xS,yS(v),3,0,Math.PI*2);
+          ctx.fillStyle='var(--lime)'; ctx.fill();
+        }
+      });
+    };
+    draw(); window.addEventListener('resize',draw);
+  },
+  buildTrader(){
+    const canvas=document.getElementById('traderCanvas');
+    if(!canvas)return;
+    const draw=()=>{
+      canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight;
+      const W=canvas.width,H=canvas.height,ctx=canvas.getContext('2d');
+      const prices=[]; let p=2330;
+      for(let i=0;i<50;i++){
+        const o=p,c=o+(Math.random()-.47)*10;
+        prices.push({o,c,h:Math.max(o,c)+(Math.random()*3),l:Math.min(o,c)-(Math.random()*3)});
+        p=c;
+      }
+      const min=Math.min(...prices.map(d=>d.l))-2,max=Math.max(...prices.map(d=>d.h))+2;
+      const yS=v=>H-(v-min)/(max-min)*H;
+      const xS=W/prices.length;
+      ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+      for(let i=1;i<4;i++){ ctx.beginPath();ctx.moveTo(0,H/4*i);ctx.lineTo(W,H/4*i);ctx.stroke(); }
+      prices.forEach((d,i)=>{
+        const x=i*xS+xS/2,up=d.c>=d.o,col=up?'#22c55e':'#ef4444';
+        ctx.strokeStyle=col; ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(x,yS(d.h));ctx.lineTo(x,yS(d.l));ctx.stroke();
+        ctx.fillStyle=col;
+        ctx.fillRect(x-xS*.35,Math.min(yS(d.o),yS(d.c)),xS*.7,Math.max(Math.abs(yS(d.c)-yS(d.o)),1));
+      });
+      ctx.strokeStyle='rgba(198,241,53,0.4)'; ctx.setLineDash([4,4]);
+      ctx.beginPath();ctx.moveTo(0,yS(prices.at(-1).c));ctx.lineTo(W,yS(prices.at(-1).c));ctx.stroke();
+      ctx.setLineDash([]);
+    };
+    draw(); window.addEventListener('resize',draw);
+  },
+  animatePrice(){
+    let xau=2341.50;
+    setInterval(()=>{
+      xau+=(Math.random()-.48)*.7;
+      const v=xau.toFixed(2);
+      ['xauLive','traderPrice'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=v; });
+    },2000);
+  }
+};
+
+// ── Trade Log ──
+const TradeLog = {
+  _built:false,
+  data:[
+    {t:'08:42',s:'XAU/USD',ty:'BUY',en:'2338.20',ex:'2341.50',pnl:'+$33'},
+    {t:'07:15',s:'XAU/USD',ty:'SELL',en:'2345.80',ex:'2341.20',pnl:'+$46'},
+    {t:'06:30',s:'XAU/USD',ty:'BUY',en:'2330.00',ex:'2338.50',pnl:'+$85'},
+    {t:'05:55',s:'EUR/USD',ty:'SELL',en:'1.0860',ex:'1.0875',pnl:'-$15'},
+    {t:'04:20',s:'XAU/USD',ty:'BUY',en:'2322.50',ex:'2325.00',pnl:'+$25'},
+  ],
+  render(){
+    if(this._built)return; this._built=true;
+    const el=document.getElementById('tradeRows');
+    if(!el)return;
+    this.data.forEach(d=>{
+      const r=document.createElement('div'); r.className='tt-row';
+      const pos=d.pnl.startsWith('+');
+      r.innerHTML=`<span style="color:var(--tx2)">${d.t}</span><span style="color:var(--blue)">${d.s}</span><span class="tt-tag ${d.ty==='BUY'?'tt-buy':'tt-sell'}">${d.ty}</span><span>${d.en}</span><span>${d.ex}</span><span class="${pos?'pnl-p':'pnl-n'}">${d.pnl}</span><span style="font-size:10px;color:var(--tx2)">CLOSED</span>`;
+      el.appendChild(r);
+    });
+  }
+};
+
+// ── Bot ──
+let botRunning=false,botIv;
+function selBot(card,label){
+  document.querySelectorAll('.bot-c').forEach(c=>c.classList.remove('sel'));
+  card.classList.add('sel');
+  document.getElementById('botLabel').textContent=label;
+  Logger.info('Bot: '+label);
+}
+function startBot(){
+  if(!localStorage.getItem('mt5on')){ showToast('⚠ MT5 Required','Connect MT5 first!','var(--orange)'); return; }
+  botRunning=true;
+  document.getElementById('btnStart').disabled=true;
+  document.getElementById('btnStop').disabled=false;
+  Logger.ok('Bot started');
+  showToast('▶ Bot Active','Auto-trading is now ON','var(--green)');
+  botIv=setInterval(()=>{ const up=Math.random()>.45,amt=(Math.random()*80+10).toFixed(0); Logger.log(`Trade: XAU ${up?'+':'−'}$${amt}`,up?'ok':'warn'); },8000);
+}
+function stopBot(){
+  botRunning=false; clearInterval(botIv);
+  document.getElementById('btnStart').disabled=false;
+  document.getElementById('btnStop').disabled=true;
+  Logger.warn('Bot stopped');
+  showToast('■ Stopped','Trading paused','var(--red)');
+}
+function connectMT5(){
+  const acc=document.getElementById('mt5Acc').value;
+  if(!acc){ showToast('Error','กรุณาใส่ Account Number','var(--red)'); return; }
+  closeModal('mt5Modal');
+  localStorage.setItem('mt5on','1');
+  document.getElementById('mt5Tag').textContent='ONLINE';
+  document.getElementById('mt5Tag').className='conn-tag ct-on';
+  showToast('✅ Connected','MT5: '+acc,'var(--green)');
+  Logger.ok('MT5 connected');
+}
+function saveEx(){ closeModal('exModal'); document.getElementById('exTag').textContent='READY'; document.getElementById('exTag').className='conn-tag ct-on'; showToast('✅ Exness Saved','Config updated','var(--green)'); }
+
+// ── Feedback ──
+const fbPool=[
+  {i:'🔍',t:'Win rate improved. Widen SL to 35 pips on XAU trend trades.'},
+  {i:'📊',t:'Best window: London open 08:00–12:00 GMT on XAU/USD.'},
+  {i:'⚡',t:'Scalper shows 71% acc on M5 but struggles high-vol days.'},
+  {i:'⚠️',t:'3 consecutive losses — pause during high-impact news.'},
+  {i:'✅',t:'RR ratio improved to 1.5:1. Current calibration is solid.'},
+  {i:'💡',t:'Grid bot struggles on trending days. Switch Trend after 10:00 GMT.'},
+]; let fbIdx=0;
+function genFeedback(){
+  const fb=fbPool[fbIdx%fbPool.length]; fbIdx++;
+  const now=new Date(),t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const el=document.createElement('div'); el.className='fb-item';
+  el.innerHTML=`<div class="fb-ico">${fb.i}</div><div><div class="fb-t">${fb.t}</div><div class="fb-ts">${t}</div></div>`;
+  const list=document.getElementById('fbList'); list.insertBefore(el,list.firstChild);
+  showToast('AI Feedback','Analysis ready','var(--blue)'); Logger.info('Feedback generated');
+}
+
+// ── AI Chat ──
+const AI = {
+    src: 'claude',
+    history: [],
+    cfg: {
+        claude: { label: 'Claude - Electron AI', model: 'claude-3-5-sonnet-latest', color:'#a78bfa'},
+        gpt:    { label: 'GPT-4o – OpenAI',       model: 'gpt-4o',                   color:'#22c55e'},
+        gemini: { label: 'Gemini – Google',       model: 'gemini-2.5-flash',         color:'#3b82f6'},
+  },
+  setSrc(btn){
+    document.querySelectorAll('.rp-src-btn').forEach(b=>b.className='rp-src-btn');
+    btn.classList.add('ac-'+btn.dataset.s);
+    this.src=btn.dataset.s;
+    document.getElementById('aiSrcLabel').textContent=this.cfg[this.src].label;
+    Logger.info('AI: '+this.cfg[this.src].label);
+  },
+  addBubble(txt,isUser=false,color=''){
+    const chat=document.getElementById('aiChat');
+    const w=document.createElement('div'); w.className='ai-msg-wrap';
+    const b=document.createElement('div'); b.className='ai-bubble'+(isUser?' user':'');
+    if(color&&!isUser) b.style.borderLeft='3px solid '+color;
+    b.textContent=txt; w.appendChild(b); chat.appendChild(w);
+    chat.scrollTop=chat.scrollHeight; return b;
+  },
+  async send(){
+    const inp=document.getElementById('aiIn');
+    const val=inp.value.trim(); if(!val)return;
+    inp.value='';
+    this.addBubble(val,true);
+    this.hist.push({role:'user',content:val});
+    const thinkBubble=this.addBubble('',false,this.cfg[this.src].color);
+    const td=document.createElement('div'); td.className='thinking-dots';
+    td.innerHTML='<span>•</span><span>•</span><span>•</span>';
+    thinkBubble.appendChild(td);
+    const btn=document.getElementById('aiSendBtn'); btn.disabled=true;
+    const key=localStorage.getItem(this.src==='claude'?'key_claude':this.src==='gpt'?'key_gpt':'key_gemini');
+    let reply='';
+    try{
+      if(this.src==='claude'){
+        if(!key){reply='ใส่ Claude API key ก่อนนะ (กด 🔑 ในเมนู)';throw new Error('nokey');}
+        const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+          headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+          body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,
+            system:'คุณคือ Electron AI ผู้ช่วยส่วนตัวใน Life OS ของ โปรตอน ช่วยเรื่องการเงิน การเทรด XAU/USD สุขภาพ และการจัดการชีวิต ตอบสั้นๆ กระชับ เป็นกันเอง ใช้ภาษาไทย',
+            messages:this.hist})});
+        const d=await r.json(); if(d.error)throw new Error(d.error.message); reply=d.content[0].text;
+      } else if(this.src==='gpt'){
+        if(!key){reply='ใส่ OpenAI API key ก่อนนะ';throw new Error('nokey');}
+        const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+          body:JSON.stringify({model:'gpt-4o',max_tokens:600,messages:[{role:'system',content:'คุณคือ AI ผู้ช่วยใน Life OS ของ โปรตอน ตอบสั้นๆ เป็นกันเอง'},...this.hist]})});
+        const d=await r.json(); if(d.error)throw new Error(d.error.message); reply=d.choices[0].message.content;
+      } else {
+        if(!key){reply='ใส่ Gemini API key ก่อนนะ';throw new Error('nokey');}
+        const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${key}`,{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({contents:this.hist.map(m=>({role:m.role==='assistant'?'model':m.role,parts:[{text:m.content}]})),
+            systemInstruction:{parts:[{text:'คุณคือ AI ผู้ช่วยใน Life OS ตอบสั้นๆ เป็นกันเอง'}]}})});
+        const d=await r.json(); if(d.error)throw new Error(d.error.message); reply=d.candidates[0].content.parts[0].text;
+      }
+      this.hist.push({role:'assistant',content:reply});
+    }catch(e){ if(!reply)reply='[Error] '+e.message.slice(0,60); }
+    thinkBubble.textContent=reply;
+    document.getElementById('aiChat').scrollTop=9999;
+    btn.disabled=false; Logger.info('AI replied');
+  }
+};
+function setSrc(btn){ AI.setSrc(btn); }
+function sendAI(){ AI.send(); }
+function saveKeys(){
+  [['kC','key_claude'],['kG','key_gpt'],['kGem','key_gemini']].forEach(([id,k])=>{
+    const v=document.getElementById(id).value.trim(); if(v)localStorage.setItem(k,v);
+  });
+  closeModal('keyModal');
+  showToast('🔑 Saved','API keys updated','var(--lime)');
+  Logger.ok('Keys saved');
+}
+
+// ── Finance ──
+const Finance = {
+  data: JSON.parse(localStorage.getItem('lifeos_fin')||'{"loans":[],"savings":[],"expenses":[]}'),
+  addType:'loan', editIdx:-1,
+  save(){ localStorage.setItem('lifeos_fin',JSON.stringify(this.data)); },
+  fmt(n){ return Number(n||0).toLocaleString('th-TH'); },
+  daysLeft(day){
+    const now=new Date(); let t=new Date(now.getFullYear(),now.getMonth(),day);
+    if(t<=now) t=new Date(now.getFullYear(),now.getMonth()+1,day);
+    return Math.ceil((t-now)/86400000);
+  },
+  dc(d){ return d<=3?'var(--red)':d<=7?'var(--orange)':'var(--tx2)'; },
+
+  renderFin(pfx){
+    ['m','fp'].forEach(p=>{
+      if(pfx&&p!==pfx)return;
+      const lEl=document.getElementById(p==='m'?'mLoans':'fpLoans');
+      const sEl=document.getElementById(p==='m'?'mSavings':'fpSavings');
+      const eEl=document.getElementById(p==='m'?'mExp':'fpExp');
+      const savEl=document.getElementById(p==='m'?'mSav':'fpSav');
+      const sumEl=document.getElementById(p==='m'?'mSum':'fpSum');
+      if(!lEl)return;
+      let debt=0,sav=0,due=0;
+
+      // Loans
+      lEl.innerHTML='';
+      if(!this.data.loans.length) lEl.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:16px;text-align:center;background:var(--bg3);border-radius:var(--r-md)">ยังไม่มีข้อมูล · กด Add เพื่อเพิ่ม</div>';
+      this.data.loans.forEach((l,i)=>{
+        debt+=Number(l.monthly)||0;
+        const rem=l.installments-l.paid, pct=Math.round(l.paid/l.installments*100);
+        const d=this.daysLeft(l.dueDay); if(d<=7)due++;
+        lEl.insertAdjacentHTML('beforeend',`<div class="entry">
+          <div class="entry-row">
+            <div class="entry-left"><div class="entry-ico">${l.icon||'🏠'}</div>
+              <div><div class="entry-name">${l.name}</div>
+                <div class="entry-sub">เหลือ ${rem} งวด · due <span style="color:${this.dc(d)}">${d}d (วัน ${l.dueDay})</span></div>
+              </div></div>
+            <div class="entry-amount" style="color:var(--red)">฿${this.fmt(l.monthly)}<div class="entry-amount-sub">per month</div></div>
+          </div>
+          <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:var(--gold)"></div></div>
+          <div class="prog-sub">${l.paid}/${l.installments} งวด (${pct}%) · คงเหลือ ฿${this.fmt(l.monthly*rem)}</div>
+          <div class="entry-actions"><button class="e-btn" onclick="Finance.editE('loan',${i})">✏</button><button class="e-btn del" onclick="Finance.delE('loan',${i})">✕</button></div>
+        </div>`);
+      });
+
+      // Savings
+      sEl.innerHTML='';
+      if(!this.data.savings.length) sEl.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:16px;text-align:center;background:var(--bg3);border-radius:var(--r-md)">ยังไม่มีข้อมูล · กด Add เพื่อเพิ่ม</div>';
+      this.data.savings.forEach((s,i)=>{
+        sav+=Number(s.balance)||0;
+        const pct=s.goal?Math.min(100,Math.round(s.balance/s.goal*100)):null;
+        sEl.insertAdjacentHTML('beforeend',`<div class="entry">
+          <div class="entry-row">
+            <div class="entry-left"><div class="entry-ico">${s.icon||'💎'}</div>
+              <div><div class="entry-name">${s.name}</div>
+                ${s.saveMonthly?`<div class="entry-sub">+฿${this.fmt(s.saveMonthly)} / เดือน</div>`:''}
+              </div></div>
+            <div class="entry-amount" style="color:var(--green)">฿${this.fmt(s.balance)}</div>
+          </div>
+          ${pct!==null?`<div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:var(--green)"></div></div><div class="prog-sub">เป้า ฿${this.fmt(s.goal)} — ${pct}%</div>`:''}
+          <div class="entry-actions"><button class="e-btn" onclick="Finance.editE('saving',${i})">✏</button><button class="e-btn del" onclick="Finance.delE('saving',${i})">✕</button></div>
+        </div>`);
+      });
+
+      // Expenses
+      eEl.innerHTML='';
+      if(!this.data.expenses.length) eEl.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:16px;text-align:center;background:var(--bg3);border-radius:var(--r-md)">ยังไม่มีข้อมูล · กด Add เพื่อเพิ่ม</div>';
+      this.data.expenses.forEach((ex,i)=>{
+        debt+=Number(ex.amount)||0;
+        const d=this.daysLeft(ex.dueDay); if(d<=7)due++;
+        eEl.insertAdjacentHTML('beforeend',`<div class="entry">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="entry-left"><div class="entry-ico">${ex.icon||'💡'}</div>
+              <div><div class="entry-name">${ex.name}</div>
+                <div class="entry-sub">due <span style="color:${this.dc(d)}">${d}d (วัน ${ex.dueDay})</span></div>
+              </div></div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="entry-amount" style="color:var(--red)">฿${this.fmt(ex.amount)}</div>
+              <button class="e-btn" onclick="Finance.editE('expense',${i})">✏</button>
+              <button class="e-btn del" onclick="Finance.delE('expense',${i})">✕</button>
+            </div></div></div>`);
+      });
+
+      if(savEl)savEl.textContent=this.fmt(sav);
+      if(sumEl) sumEl.innerHTML=`
+        <div class="fms-cell"><span class="fms-val" style="color:var(--red)">฿${this.fmt(debt)}</span><span class="fms-lbl">Debt / month</span></div>
+        <div class="fms-cell"><span class="fms-val" style="color:var(--green)">฿${this.fmt(sav)}</span><span class="fms-lbl">Total savings</span></div>
+        <div class="fms-cell"><span class="fms-val" style="color:var(--orange)">${due}</span><span class="fms-lbl">Due ≤ 7 days</span></div>`;
+
+      // Dashboard sync
+      ['dashSav','finTotalDisp'].forEach(id=>{ const el=document.getElementById(id); if(el)el.textContent=this.fmt(sav); });
+      // Finance summary rows
+      const rows=document.getElementById('finSumRows');
+      if(rows){
+        rows.innerHTML='';
+        [...this.data.loans.slice(0,1),...this.data.savings.slice(0,1),...this.data.expenses.slice(0,1)].forEach(item=>{
+          const isS=this.data.savings.includes(item);
+          rows.insertAdjacentHTML('beforeend',`<div class="fin-sum-row"><span class="fin-sum-lbl"><span>${item.icon||'💰'}</span>${item.name}</span><span class="${isS?'fin-sum-pos':'fin-sum-neg'}">${isS?'+':'−'} ฿${this.fmt(isS?item.balance:item.monthly||item.amount)}</span></div>`);
+        });
+        if(!rows.children.length) rows.innerHTML='<div class="fin-sum-row"><span class="fin-sum-lbl" style="font-size:11px">เปิด Finance Log เพื่อเพิ่มข้อมูล</span></div>';
+      }
+    });
+  },
+
+  openAdd(type){
+    this.addType=type; this.editIdx=-1; this.clearForm(); this.showFields(type);
+    document.getElementById('addTitle').textContent='Add '+type.charAt(0).toUpperCase()+type.slice(1);
+    openModal('addModal');
+  },
+  editE(type,idx){
+    const d=this.data[type+'s'][idx];
+    this.addType=type; this.editIdx=idx; this.clearForm(); this.showFields(type);
+    document.getElementById('fName').value=d.name||''; document.getElementById('fIcon').value=d.icon||'';
+    if(type==='loan'){document.getElementById('fMo').value=d.monthly||'';document.getElementById('fTotal').value=d.installments||'';document.getElementById('fPaid').value=d.paid||'';document.getElementById('fDue').value=d.dueDay||'';}
+    else if(type==='saving'){document.getElementById('fBal').value=d.balance||'';document.getElementById('fSmo').value=d.saveMonthly||'';document.getElementById('fGoal').value=d.goal||'';}
+    else{document.getElementById('fExpAmt').value=d.amount||'';document.getElementById('fExpDue').value=d.dueDay||'';}
+    document.getElementById('addTitle').textContent='Edit '+type.charAt(0).toUpperCase()+type.slice(1);
+    openModal('addModal');
+  },
+  clearForm(){ ['fName','fMo','fTotal','fPaid','fDue','fBal','fSmo','fGoal','fExpAmt','fExpDue','fIcon'].forEach(id=>{ const el=document.getElementById(id);if(el)el.value=''; }); },
+  showFields(type){
+    document.getElementById('fLoan').style.display=type==='loan'?'block':'none';
+    document.getElementById('fSave').style.display=type==='saving'?'block':'none';
+    document.getElementById('fExp').style.display=type==='expense'?'block':'none';
+  },
+  saveEntry(){
+    const name=document.getElementById('fName').value.trim(),icon=document.getElementById('fIcon').value.trim()||'💰';
+    if(!name){showToast('Error','กรุณาใส่ชื่อ','var(--red)');return;}
+    let entry={};
+    if(this.addType==='loan') entry={name,icon,monthly:+document.getElementById('fMo').value||0,installments:+document.getElementById('fTotal').value||1,paid:+document.getElementById('fPaid').value||0,dueDay:+document.getElementById('fDue').value||1};
+    else if(this.addType==='saving') entry={name,icon,balance:+document.getElementById('fBal').value||0,saveMonthly:+document.getElementById('fSmo').value||0,goal:+document.getElementById('fGoal').value||0};
+    else entry={name,icon,amount:+document.getElementById('fExpAmt').value||0,dueDay:+document.getElementById('fExpDue').value||1};
+    const arr=this.data[this.addType+'s'];
+    if(this.editIdx>=0)arr[this.editIdx]=entry; else arr.push(entry);
+    this.save(); closeModal('addModal'); this.renderFin();
+    showToast('Saved ✓','"'+name+'" บันทึกแล้ว','var(--green)'); Logger.ok('Finance: '+name);
+  },
+  delE(type,idx){
+    if(!confirm('ลบรายการนี้?'))return;
+    this.data[type+'s'].splice(idx,1); this.save(); this.renderFin();
+    showToast('Deleted','ลบแล้ว','var(--orange)');
+  },
+  setIco(e){ document.getElementById('fIcon').value=e; }
+};
+
+function openAdd(t){ Finance.openAdd(t); }
+function saveEntry(){ Finance.saveEntry(); }
+function setIco(e){ Finance.setIco(e); }
+function renderFin(p){ Finance.renderFin(p); }
+
+// ── Quest ──
+function toggleQ(el){
+  el.classList.toggle('done');
+  const n=el.querySelector('.q-text').textContent;
+  const xp=el.querySelector('.q-xp').textContent;
+  if(el.classList.contains('done')){
+    el.querySelector('.q-check').textContent='✓';
+    showToast('⚔️ Quest!',n+' +'+xp+' XP','var(--lime)');
+    Logger.ok('Quest: '+n);
+  } else el.querySelector('.q-check').textContent='';
+}
+
+// ── BOOT ──
+document.addEventListener('DOMContentLoaded',()=>{
+  Clock.init();
+  Charts.buildMain();
+  Charts.animatePrice();
+  Finance.renderFin();
+  // Preload API key fields when modal opens
+  document.getElementById('keyModal').addEventListener('click',()=>{
+    document.getElementById('kC').value=localStorage.getItem('key_claude')||'';
+    document.getElementById('kG').value=localStorage.getItem('key_gpt')||'';
+    document.getElementById('kGem').value=localStorage.getItem('key_gemini')||'';
+  });
+  setTimeout(()=>showToast('Life OS v0.5 🚀','ยินดีต้อนรับกลับมา โปรตอน!','var(--lime)'),600);
+  Logger.ok('v0.5 ready — new UI');
+  Logger.info('Modern dark dashboard loaded');
+});
+</script>
+</body>
+</html>
