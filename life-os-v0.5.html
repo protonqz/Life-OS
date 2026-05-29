@@ -1636,23 +1636,26 @@ const AI = {
     b.textContent=txt; w.appendChild(b); chat.appendChild(w);
     chat.scrollTop=chat.scrollHeight; return b;
   },
-  async send(){
-    const inp=document.getElementById('aiIn');
-    const val=inp.value.trim(); if(!val)return;
-    inp.value='';
-    this.addBubble(val,true);
-    this.hist.push({role:'user',content:val});
-    const thinkBubble=this.addBubble('',false,this.cfg[this.src].color);
-    const td=document.createElement('div'); td.className='thinking-dots';
-    td.innerHTML='<span>•</span><span>•</span><span>•</span>';
-    thinkBubble.appendChild(td);
-    const btn=document.getElementById('aiSendBtn'); btn.disabled=true;
-    const key=localStorage.getItem(this.src==='claude'?'key_claude':this.src==='gpt'?'key_gpt':'key_gemini');
-    let reply='';
-    try{
-      if(this.src==='claude'){
-        if(!key){reply='ใส่ Claude API key ก่อนนะ (กด 🔑 ในเมนู)';throw new Error('nokey');}
-        const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+  async send(txt) {
+        if(!txt) return;
+        
+        // เช็คก่อนว่าในโมเดลปัจจุบันมีอาร์เรย์ history รึยัง ถ้าไม่มีให้สร้างรอไว้
+        if (!this.cfg[this.src].history) {
+            this.cfg[this.src].history = [];
+        }
+        
+        // บันทึกประวัติแชทลงไปในโมเดลที่มึงกำลังเลือกใช้งานอยู่จริง
+        this.cfg[this.src].history.push({ role: 'user', content: txt });
+        
+        this.renderMessage(txt, 'user');
+        
+        const c = this.cfg[this.src];
+        const k = localStorage.getItem(this.src === 'claude' ? 'key_claude' : this.src === 'gpt' ? 'key_gpt' : 'key_gemini');
+        
+        if(!k) {
+            this.renderMessage(`ใส่ ${c.label} API key ก่อนนะ`, 'ai');
+            return;
+        }
           headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
           body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,
             system:'คุณคือ Electron AI ผู้ช่วยส่วนตัวใน Life OS ของ โปรตอน ช่วยเรื่องการเงิน การเทรด XAU/USD สุขภาพ และการจัดการชีวิต ตอบสั้นๆ กระชับ เป็นกันเอง ใช้ภาษาไทย',
