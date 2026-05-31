@@ -1,0 +1,1840 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life OS v0.8</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+/* ═══ TOKENS ═══ */
+:root {
+  --bg:    #111113;  --bg1:   #18181b;  --bg2:   #1f1f23;
+  --bg3:   #27272c;  --bg4:   #303036;
+  --b0: rgba(255,255,255,.06);  --b1: rgba(255,255,255,.10);  --b2: rgba(255,255,255,.16);
+
+  --tx0:#f4f4f8; --tx1:#9494a8; --tx2:#525260;
+
+  /* Module colours */
+  --fin:  #f5c842;  --fin-d:  rgba(245,200,66,.12);
+  --hlth: #22c55e;  --hlth-d: rgba(34,197,94,.12);
+  --fut:  #8b5cf6;  --fut-d:  rgba(139,92,246,.14);
+  --fam:  #ec4899;  --fam-d:  rgba(236,72,153,.12);
+  --biz:  #3b82f6;  --biz-d:  rgba(59,130,246,.12);
+  --spc:  #f97316;  --spc-d:  rgba(249,115,22,.12);
+  --tod:  #06b6d4;  --tod-d:  rgba(6,182,212,.12);
+  --qst:  #c6f135;  --qst-d:  rgba(198,241,53,.12);
+
+  --lime:#c6f135; --green:#22c55e; --red:#ef4444; --red-d:rgba(239,68,68,.12);
+  --purple:#8b5cf6; --blue:#3b82f6; --orange:#f97316;
+
+  --font-d:'Syne',sans-serif;
+  --font-b:'DM Sans',sans-serif;
+  --font-px:'Press Start 2P',monospace;
+
+  --r4:4px; --r8:8px; --r12:12px; --r16:16px; --r20:20px; --r24:24px; --r32:32px;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx0);font-family:var(--font-b);font-size:13px;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+::-webkit-scrollbar-thumb:hover{background:var(--lime);}
+
+/* ═══ APP SHELL — 3 independent columns ═══ */
+.app{display:grid;grid-template-columns:64px 220px 1fr 264px;height:100vh;overflow:hidden;}
+
+/* ═══ ICON NAV (col 1) ═══ */
+.icon-nav{
+  background:var(--bg1);border-right:1px solid var(--b0);
+  display:flex;flex-direction:column;align-items:center;
+  padding:16px 0;gap:4px;height:100vh;overflow:hidden;
+}
+.nav-logo{
+  width:36px;height:36px;background:var(--lime);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-px);font-size:7px;color:#000;margin-bottom:12px;
+  box-shadow:0 0 24px rgba(198,241,53,.4);
+}
+.ni{
+  width:42px;height:42px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;cursor:pointer;color:var(--tx2);
+  transition:all .15s;position:relative;flex-shrink:0;
+}
+.ni:hover{background:var(--bg3);color:var(--tx0);}
+.ni.on{background:var(--bg3);color:var(--lime);}
+.ni.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--lime);border-radius:0 3px 3px 0;}
+.ni-tip{
+  position:absolute;left:52px;background:var(--bg3);border:1px solid var(--b1);
+  border-radius:var(--r8);padding:5px 10px;font-size:10px;color:var(--tx0);
+  white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:99;
+}
+.ni:hover .ni-tip{opacity:1;}
+.nav-sep{width:28px;height:1px;background:var(--b0);margin:6px 0;}
+.nav-avatar{
+  margin-top:auto;width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--purple),var(--blue));
+  border:2px solid var(--b1);display:flex;align-items:center;justify-content:center;
+  font-size:14px;cursor:pointer;position:relative;flex-shrink:0;
+}
+.nav-lv{position:absolute;bottom:-5px;right:-5px;background:var(--lime);color:#000;font-family:var(--font-px);font-size:4px;padding:2px 3px;border-radius:3px;}
+
+/* ═══ CHARACTER SIDEBAR (col 2) ═══ */
+.char-sidebar{
+  background:var(--bg1);border-right:1px solid var(--b0);
+  height:100vh;overflow-y:auto;overflow-x:hidden;
+  display:flex;flex-direction:column;gap:0;
+}
+.cs-section{padding:16px;border-bottom:1px solid var(--b0);}
+.cs-label{font-family:var(--font-px);font-size:5px;color:var(--tx2);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+
+/* Character display */
+.char-card{background:var(--bg2);border-radius:var(--r16);padding:16px;text-align:center;position:relative;overflow:hidden;}
+.char-card::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 5px,rgba(255,255,255,.012) 5px,rgba(255,255,255,.012) 6px),repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(255,255,255,.012) 5px,rgba(255,255,255,.012) 6px);pointer-events:none;}
+#charCanvas{display:block;margin:0 auto 8px;image-rendering:pixelated;}
+.char-name{font-family:var(--font-d);font-size:14px;font-weight:700;color:var(--tx0);}
+.char-class{font-size:10px;color:var(--tx1);margin-top:2px;margin-bottom:10px;}
+.char-lv-badge{display:inline-block;background:var(--lime);color:#000;font-family:var(--font-px);font-size:5px;padding:3px 8px;border-radius:4px;}
+
+/* Status bars */
+.status-bars{display:flex;flex-direction:column;gap:10px;}
+.sbar-row{display:flex;flex-direction:column;gap:4px;}
+.sbar-head{display:flex;justify-content:space-between;align-items:center;}
+.sbar-label{font-family:var(--font-px);font-size:5px;letter-spacing:1px;}
+.sbar-val{font-size:10px;color:var(--tx1);}
+.sbar-track{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;cursor:pointer;}
+.sbar-fill{height:100%;border-radius:4px;transition:width .6s ease;}
+.sbar-hp .sbar-fill{background:linear-gradient(90deg,var(--red),#ff6b6b);}
+.sbar-xp .sbar-fill{background:linear-gradient(90deg,var(--lime),#a8e830);}
+.sbar-life .sbar-fill{background:linear-gradient(90deg,var(--blue),var(--purple));}
+.sbar-sub{font-size:9px;color:var(--tx2);}
+
+/* Stat grid */
+.stat-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.stat-mini{background:var(--bg2);border-radius:var(--r12);padding:10px;text-align:center;}
+.stat-mini-v{font-family:var(--font-d);font-size:16px;font-weight:700;display:block;margin-bottom:2px;}
+.stat-mini-l{font-size:9px;color:var(--tx2);}
+
+/* Quick quests in sidebar */
+.sq-item{display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg2);border-radius:var(--r12);margin-bottom:4px;cursor:pointer;transition:background .15s;}
+.sq-item:hover{background:var(--bg3);}
+.sq-icon{font-size:14px;flex-shrink:0;}
+.sq-bar{height:2px;background:var(--bg3);border-radius:1px;margin-top:3px;}
+.sq-fill{height:100%;background:var(--qst);border-radius:1px;}
+.sq-name{font-size:10px;color:var(--tx0);line-height:1.3;}
+
+/* ═══ MAIN CONTENT (col 3) ═══ */
+.main{height:100vh;overflow-y:auto;overflow-x:hidden;padding:20px 20px 32px;}
+
+/* Page system */
+.page{display:none;animation:fadeUp .2s ease both;}
+.page.on{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Page header */
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.page-title{font-family:var(--font-d);font-size:28px;font-weight:800;letter-spacing:-.5px;line-height:1;}
+.page-sub{font-size:11px;color:var(--tx2);margin-top:4px;letter-spacing:.5px;text-transform:uppercase;}
+.page-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+
+/* Section */
+.section{margin-bottom:24px;}
+.section-title{font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--b0);}
+
+/* Cards */
+.card{background:var(--bg1);border:1px solid var(--b0);border-radius:var(--r20);padding:18px 20px;}
+.card-sm{background:var(--bg1);border:1px solid var(--b0);border-radius:var(--r16);padding:14px 16px;}
+
+/* Summary strip */
+.sum-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.sum-cell{background:var(--bg1);border:1px solid var(--b0);border-radius:var(--r16);padding:14px 16px;position:relative;overflow:hidden;transition:border-color .15s;}
+.sum-cell:hover{border-color:var(--b1);}
+.sum-cell-icon{font-size:18px;margin-bottom:8px;}
+.sum-cell-lbl{font-size:10px;color:var(--tx2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.sum-cell-val{font-family:var(--font-d);font-size:20px;font-weight:700;line-height:1;}
+.sum-cell-sub{font-size:10px;color:var(--tx1);margin-top:3px;}
+.sum-cell-accent{position:absolute;top:0;left:0;right:0;height:2px;}
+
+/* Grid layouts */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+
+/* Entry rows */
+.entry-list{display:flex;flex-direction:column;gap:8px;}
+.entry-row{
+  background:var(--bg2);border-radius:var(--r12);padding:12px 14px;
+  display:flex;align-items:center;gap:12px;position:relative;
+  transition:background .15s;
+}
+.entry-row:hover{background:var(--bg3);}
+.entry-ico{font-size:20px;flex-shrink:0;}
+.entry-info{flex:1;min-width:0;}
+.entry-name{font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.entry-sub{font-size:10px;color:var(--tx2);line-height:1.4;}
+.entry-right{text-align:right;flex-shrink:0;}
+.entry-val{font-family:var(--font-d);font-size:15px;font-weight:700;}
+.entry-vsub{font-size:9px;color:var(--tx2);margin-top:1px;}
+.entry-prog{height:3px;background:var(--bg3);border-radius:2px;margin-top:6px;overflow:hidden;}
+.entry-prog-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+.entry-actions{display:flex;gap:4px;flex-shrink:0;}
+
+/* Buttons */
+.btn{background:transparent;border:1px solid var(--b1);border-radius:var(--r8);color:var(--tx1);font-family:var(--font-b);font-size:11px;padding:6px 12px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.btn:hover{background:var(--bg3);color:var(--tx0);border-color:var(--b2);}
+.btn-primary{background:var(--lime);border-color:var(--lime);color:#000;font-weight:600;}
+.btn-primary:hover{opacity:.88;color:#000;}
+.btn-sm{font-size:10px;padding:4px 10px;}
+.btn-icon{width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;font-size:12px;border-radius:var(--r8);flex-shrink:0;}
+.btn-icon.del:hover{border-color:var(--red);color:var(--red);}
+
+/* Progress bar generic */
+.prog{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid currentColor;white-space:nowrap;}
+
+/* Tags */
+.tag-easy{color:var(--hlth);} .tag-med{color:var(--orange);} .tag-hard{color:var(--red);}
+
+/* Dashboard module cards */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+@media(max-width:1100px){.dash-grid{grid-template-columns:repeat(2,1fr);}}
+
+.mod-card{
+  background:var(--bg1);border:1px solid var(--b0);border-radius:var(--r20);
+  padding:18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
+  min-height:140px;display:flex;flex-direction:column;justify-content:space-between;
+}
+.mod-card:hover{transform:translateY(-2px);border-color:var(--b1);box-shadow:0 8px 32px rgba(0,0,0,.3);}
+.mod-card:active{transform:none;}
+.mod-card-accent{position:absolute;top:0;left:0;right:0;height:2px;}
+.mod-card-icon{font-size:24px;margin-bottom:12px;}
+.mod-card-title{font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:4px;}
+.mod-card-sub{font-size:10px;color:var(--tx2);line-height:1.5;}
+.mod-card-val{font-family:var(--font-d);font-size:22px;font-weight:800;margin-top:8px;}
+.mod-card-badge{position:absolute;top:14px;right:14px;}
+
+/* HP input slider */
+.hp-slider{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:var(--bg3);outline:none;cursor:pointer;}
+.hp-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--red);cursor:pointer;border:2px solid var(--bg1);}
+
+/* Form fields */
+.f-group{margin-bottom:12px;}
+.f-label{font-size:10px;color:var(--tx2);display:block;margin-bottom:4px;font-weight:500;}
+.f-input{width:100%;background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r12);color:var(--tx0);font-family:var(--font-b);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;}
+.f-input:focus{border-color:var(--lime);}
+.f-input::placeholder{color:var(--tx2);}
+.f-select{width:100%;background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r12);color:var(--tx0);font-family:var(--font-b);font-size:13px;padding:9px 12px;outline:none;cursor:pointer;appearance:none;}
+.f-textarea{width:100%;background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r12);color:var(--tx0);font-family:var(--font-b);font-size:13px;padding:9px 12px;outline:none;resize:vertical;min-height:72px;transition:border-color .15s;}
+.f-textarea:focus{border-color:var(--lime);}
+.f-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.f-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.f-actions{display:flex;gap:8px;margin-top:16px;}
+.f-save{flex:1;background:var(--lime);border:none;border-radius:var(--r12);color:#000;font-family:var(--font-d);font-size:13px;font-weight:700;padding:11px;cursor:pointer;transition:opacity .15s;}
+.f-save:hover{opacity:.88;}
+.f-cancel{flex:1;background:transparent;border:1px solid var(--b1);border-radius:var(--r12);color:var(--tx1);font-family:var(--font-b);font-size:13px;padding:11px;cursor:pointer;transition:all .15s;}
+.f-cancel:hover{border-color:var(--red);color:var(--red);}
+
+/* Todo items */
+.todo-item{
+  display:flex;align-items:flex-start;gap:10px;padding:10px 12px;
+  background:var(--bg2);border-radius:var(--r12);margin-bottom:6px;
+  transition:background .15s;cursor:pointer;
+}
+.todo-item:hover{background:var(--bg3);}
+.todo-item.done{opacity:.45;}
+.todo-item.done .todo-text{text-decoration:line-through;}
+.todo-check{width:18px;height:18px;border:2px solid var(--b2);border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s;margin-top:1px;}
+.todo-item.done .todo-check{background:var(--lime);border-color:var(--lime);color:#000;}
+.todo-text{flex:1;font-size:12px;line-height:1.5;}
+.todo-meta{font-size:10px;color:var(--tx2);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;}
+.todo-alarm{font-size:9px;color:var(--tod);background:var(--tod-d);padding:2px 6px;border-radius:10px;}
+.priority-high{border-left:3px solid var(--red);}
+.priority-med{border-left:3px solid var(--orange);}
+.priority-low{border-left:3px solid var(--hlth);}
+
+/* Quest items */
+.quest-item{
+  background:var(--bg2);border-radius:var(--r16);padding:14px 16px;margin-bottom:8px;
+  border:1px solid var(--b0);transition:border-color .15s;cursor:pointer;
+}
+.quest-item:hover{border-color:var(--qst);}
+.quest-item.done{opacity:.5;}
+.quest-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.quest-icon{font-size:18px;flex-shrink:0;}
+.quest-name{font-size:13px;font-weight:600;flex:1;}
+.quest-xp{font-family:var(--font-px);font-size:6px;color:var(--qst);}
+.quest-diff{font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid currentColor;}
+.quest-desc{font-size:11px;color:var(--tx1);line-height:1.5;margin-bottom:8px;}
+.quest-prog-row{display:flex;justify-content:space-between;font-size:10px;color:var(--tx2);margin-bottom:4px;}
+
+/* Family cards */
+.family-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.family-card{background:var(--bg2);border-radius:var(--r16);padding:16px;text-align:center;cursor:pointer;transition:all .15s;border:1px solid var(--b0);}
+.family-card:hover{border-color:var(--fam);transform:translateY(-2px);}
+.family-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 10px;border:2px solid var(--b1);}
+.family-name{font-size:13px;font-weight:600;margin-bottom:2px;}
+.family-rel{font-size:10px;color:var(--tx2);}
+.family-birth{font-size:9px;color:var(--tx2);margin-top:4px;}
+
+/* Kanban (Future Plan) */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.kanban-col{background:var(--bg2);border-radius:var(--r16);padding:12px;}
+.kanban-col-title{font-size:11px;font-weight:600;color:var(--tx1);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
+.kanban-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.kanban-item{background:var(--bg1);border-radius:var(--r12);padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:all .15s;border:1px solid var(--b0);}
+.kanban-item:hover{border-color:var(--b2);}
+.kanban-item-title{font-size:12px;font-weight:500;margin-bottom:4px;}
+.kanban-item-tag{font-size:9px;padding:2px 6px;border-radius:20px;border:1px solid currentColor;display:inline-block;}
+
+/* Reward cards */
+.reward-card{background:var(--bg2);border-radius:var(--r16);padding:14px 16px;border:1px solid var(--b0);display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s;margin-bottom:8px;}
+.reward-card:hover{border-color:var(--spc);}
+.reward-ico{font-size:24px;flex-shrink:0;}
+.reward-info{flex:1;min-width:0;}
+.reward-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+.reward-cond{font-size:10px;color:var(--tx2);line-height:1.4;}
+.reward-xp{font-family:var(--font-px);font-size:5px;color:var(--spc);}
+.reward-status{flex-shrink:0;}
+
+/* ═══ RIGHT PANEL (col 4) ═══ */
+.rpanel{
+  background:var(--bg1);border-left:1px solid var(--b0);
+  height:100vh;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.rp-head{padding:14px 16px;border-bottom:1px solid var(--b0);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.rp-head-title{font-family:var(--font-d);font-size:14px;font-weight:700;}
+.rp-head-sub{font-size:10px;color:var(--tx1);margin-top:1px;}
+.rp-src{display:flex;gap:4px;padding:10px 14px;border-bottom:1px solid var(--b0);flex-shrink:0;}
+.src-btn{flex:1;background:transparent;border:1px solid var(--b1);border-radius:var(--r8);color:var(--tx1);font-size:10px;padding:5px 6px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:4px;}
+.src-btn:hover{border-color:var(--b2);color:var(--tx0);}
+.src-btn.ac-claude{border-color:var(--purple);color:var(--purple);background:rgba(139,92,246,.1);}
+.src-btn.ac-gpt{border-color:var(--hlth);color:var(--hlth);background:var(--hlth-d);}
+.src-btn.ac-gemini{border-color:var(--biz);color:var(--biz);background:var(--biz-d);}
+.key-btn-sm{background:transparent;border:1px solid var(--b0);border-radius:var(--r8);color:var(--tx2);padding:5px 8px;cursor:pointer;font-size:12px;transition:all .15s;}
+.key-btn-sm:hover{border-color:var(--lime);color:var(--lime);}
+.ai-chat{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.ai-bubble{max-width:88%;background:var(--bg2);border-radius:14px 14px 14px 4px;padding:10px 13px;font-size:12px;line-height:1.6;color:var(--tx0);}
+.ai-bubble.user{background:var(--purple);border-radius:14px 14px 4px 14px;align-self:flex-end;color:#fff;font-size:12px;}
+.ai-bubble.err{background:var(--red-d);border:1px solid rgba(239,68,68,.3);color:var(--red);}
+.thinking-dots span{display:inline-block;animation:td .8s ease-in-out infinite;color:var(--tx2);}
+.thinking-dots span:nth-child(2){animation-delay:.2s;}
+.thinking-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes td{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-3px)}}
+.ai-input-bar{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--b0);flex-shrink:0;}
+.ai-input{flex:1;background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r32);color:var(--tx0);font-family:var(--font-b);font-size:12px;padding:9px 14px;outline:none;transition:border-color .15s;}
+.ai-input:focus{border-color:var(--purple);}
+.ai-input::placeholder{color:var(--tx2);}
+.ai-send{width:34px;height:34px;background:var(--purple);border:none;border-radius:50%;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.ai-send:hover{background:var(--blue);}
+.ai-send:disabled{opacity:.3;cursor:not-allowed;}
+.sys-log{height:90px;border-top:1px solid var(--b0);overflow-y:auto;padding:6px 14px;background:var(--bg);flex-shrink:0;}
+.slog{font-family:monospace;font-size:9px;color:var(--tx2);margin-bottom:2px;line-height:1.4;}
+.slog-ok{color:var(--hlth);} .slog-warn{color:var(--orange);} .slog-err{color:var(--red);} .slog-info{color:var(--biz);}
+
+/* ═══ MODALS ═══ */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);z-index:500;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;animation:fadeUp .2s ease;}
+.modal{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r24);width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.6);}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--b0);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg2);z-index:1;border-radius:var(--r24) var(--r24) 0 0;}
+.modal-title{font-family:var(--font-d);font-size:16px;font-weight:700;}
+.modal-close{background:var(--bg3);border:none;border-radius:50%;width:28px;height:28px;color:var(--tx1);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.modal-close:hover{background:var(--red-d);color:var(--red);}
+.modal-body{padding:20px 22px;}
+
+/* Icon picker */
+.icon-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.ip{font-size:18px;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r8);padding:5px 8px;cursor:pointer;transition:all .15s;}
+.ip:hover{border-color:var(--lime);transform:scale(1.1);}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--b1);border-left:3px solid var(--lime);border-radius:var(--r16);padding:12px 16px;max-width:260px;z-index:900;display:none;animation:slideR .25s ease;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+@keyframes slideR{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast-title{font-family:var(--font-d);font-size:12px;font-weight:700;display:block;margin-bottom:3px;}
+.toast-msg{font-size:11px;color:var(--tx1);line-height:1.5;}
+
+/* Login screen */
+#loginScreen{position:fixed;inset:0;z-index:9999;background:#0a0a0c;display:flex;align-items:center;justify-content:center;overflow:hidden;background-image:linear-gradient(rgba(198,241,53,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(198,241,53,.02) 1px,transparent 1px);background-size:28px 28px;}
+#loginScreen.hide{animation:loginOut .5s ease forwards;}
+@keyframes loginOut{to{opacity:0;transform:scale(1.04);pointer-events:none;}}
+.lb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;}
+.lb1{width:500px;height:500px;background:var(--purple);top:-150px;left:-100px;opacity:.1;}
+.lb2{width:400px;height:400px;background:var(--lime);bottom:-100px;right:-100px;opacity:.09;}
+.lb3{width:200px;height:200px;background:var(--biz);top:40%;right:15%;opacity:.07;}
+.login-card{background:rgba(18,18,22,.96);border:1px solid rgba(255,255,255,.09);border-radius:28px;width:400px;padding:40px;position:relative;z-index:1;backdrop-filter:blur(20px);box-shadow:0 40px 120px rgba(0,0,0,.6);animation:fadeUp .6s cubic-bezier(.2,1,.3,1) both;}
+.lg-logo{text-align:center;margin-bottom:32px;}
+.lg-icon{width:56px;height:56px;background:var(--lime);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-px);font-size:10px;color:#000;margin-bottom:14px;box-shadow:0 0 40px rgba(198,241,53,.45);}
+.lg-title{font-family:var(--font-d);font-size:26px;font-weight:800;margin-bottom:5px;}
+.lg-sub{font-size:12px;color:var(--tx2);}
+.auth-btn{width:100%;padding:13px 18px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--tx0);font-family:var(--font-b);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;margin-bottom:8px;}
+.auth-btn:hover{background:rgba(255,255,255,.1);transform:translateY(-1px);}
+.auth-btn.guest{border-style:dashed;color:var(--tx1);}
+.auth-btn.guest:hover{border-color:rgba(198,241,53,.4);color:var(--lime);}
+.lg-divider{display:flex;align-items:center;gap:10px;margin:12px 0;}
+.lg-divider::before,.lg-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07);}
+.lg-divider span{font-size:10px;color:var(--tx2);}
+.guest-wrap{display:none;margin-bottom:10px;animation:fadeUp .2s ease;}
+.guest-wrap.show{display:block;}
+.guest-in{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;color:var(--tx0);font-family:var(--font-b);font-size:14px;padding:12px 16px;outline:none;text-align:center;transition:border-color .2s;}
+.guest-in:focus{border-color:var(--lime);}
+.guest-in::placeholder{color:var(--tx2);}
+.enter-btn{width:100%;padding:14px;background:var(--lime);border:none;border-radius:14px;color:#000;font-family:var(--font-d);font-size:14px;font-weight:700;cursor:pointer;display:none;margin-top:4px;transition:all .2s;box-shadow:0 4px 20px rgba(198,241,53,.3);}
+.enter-btn.show{display:block;animation:fadeUp .2s ease;}
+.enter-btn:hover{opacity:.9;transform:translateY(-1px);}
+.lg-foot{text-align:center;font-size:10px;color:var(--tx2);margin-top:16px;line-height:1.7;}
+.spin-wrap{display:none;flex-direction:column;align-items:center;gap:12px;padding:16px 0;}
+.spin-wrap.show{display:flex;}
+.spin{width:32px;height:32px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--lime);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-txt{font-family:var(--font-px);font-size:6px;color:var(--lime);letter-spacing:2px;}
+
+/* Char editor */
+.char-opt-group{margin-bottom:12px;}
+.char-opt-label{font-size:10px;color:var(--tx2);margin-bottom:6px;font-weight:500;}
+.char-opt-row{display:flex;flex-wrap:wrap;gap:5px;}
+.opt-b{background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:5px 9px;font-size:10px;cursor:pointer;transition:all .15s;color:var(--tx1);}
+.opt-b:hover,.opt-b.sel{border-color:var(--lime);color:var(--lime);background:var(--qst-d);}
+.col-b{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0;}
+.col-b.sel{border-color:var(--lime);transform:scale(1.2);box-shadow:0 0 8px rgba(198,241,53,.5);}
+
+/* HP edit */
+.hp-edit-popup{position:absolute;bottom:calc(100% + 8px);left:0;right:0;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r12);padding:12px;z-index:10;display:none;}
+.hp-edit-popup.open{display:block;animation:fadeUp .15s ease;}
+
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="loginScreen">
+  <div class="lb lb1"></div><div class="lb lb2"></div><div class="lb lb3"></div>
+  <div class="login-card">
+    <div class="lg-logo">
+      <div class="lg-icon">LO</div>
+      <div class="lg-title">Life OS</div>
+      <div class="lg-sub">จัดการชีวิตทุกมิติด้วย AI · v0.8</div>
+    </div>
+    <div id="lgBtns">
+      <button class="auth-btn" onclick="LS.google()">
+        <svg width="17" height="17" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
+      <div class="lg-divider"><span>หรือ</span></div>
+      <button class="auth-btn guest" onclick="LS.toggleGuest()">👤 ทดลองใช้งานฟรี (Guest)</button>
+      <div class="guest-wrap" id="guestWrap">
+        <input class="guest-in" id="guestName" placeholder="ชื่อตัวละครของคุณ..." maxlength="20" oninput="LS.onName()"/>
+      </div>
+      <div class="spin-wrap" id="lgLoading"><div class="spin"></div><div class="spin-txt">LOADING...</div></div>
+      <button class="enter-btn" id="enterBtn" onclick="LS.enter()">▶ เข้าสู่ Life OS</button>
+    </div>
+    <div class="lg-foot">Life OS v0.8 · ข้อมูลเก็บใน browser ของคุณเท่านั้น</div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div class="app" id="appShell" style="display:none">
+
+<!-- Col 1: Icon Nav -->
+<nav class="icon-nav">
+  <div class="nav-logo">LO</div>
+  <div class="ni on" onclick="goto('dashboard',this)" title=""><span>🏠</span><span class="ni-tip">Dashboard</span></div>
+  <div class="ni" onclick="goto('financial',this)"><span>💰</span><span class="ni-tip">Financial</span></div>
+  <div class="ni" onclick="goto('health',this)"><span>❤️</span><span class="ni-tip">Health</span></div>
+  <div class="ni" onclick="goto('future',this)"><span>🌟</span><span class="ni-tip">Future Plan</span></div>
+  <div class="ni" onclick="goto('family',this)"><span>👨‍👩‍👧</span><span class="ni-tip">Family</span></div>
+  <div class="ni" onclick="goto('business',this)"><span>💼</span><span class="ni-tip">Business</span></div>
+  <div class="ni" onclick="goto('special',this)"><span>🎁</span><span class="ni-tip">Special</span></div>
+  <div class="ni" onclick="goto('todo',this)"><span>✅</span><span class="ni-tip">To-Do</span></div>
+  <div class="ni" onclick="goto('quest',this)"><span>⚔️</span><span class="ni-tip">Quest</span></div>
+  <div class="nav-sep"></div>
+  <div class="ni" onclick="goto('profile',this)"><span>👤</span><span class="ni-tip">Profile</span></div>
+  <div class="ni" onclick="openModal('keyModal')"><span>🔑</span><span class="ni-tip">API Keys</span></div>
+  <div class="nav-avatar" id="navAvatar" onclick="goto('profile',null)" title="Profile">⚛<div class="nav-lv" id="navLv">LV1</div></div>
+</nav>
+
+<!-- Col 2: Character Sidebar -->
+<aside class="char-sidebar">
+
+  <!-- Character -->
+  <div class="cs-section">
+    <div class="cs-label">Character</div>
+    <div class="char-card">
+      <canvas id="charCanvas" width="80" height="108"></canvas>
+      <div class="char-name" id="sbarName">PROTON</div>
+      <div class="char-class" id="sbarClass">Life Engineer</div>
+      <div class="char-lv-badge" id="sbarLv">LV 1</div>
+    </div>
+  </div>
+
+  <!-- Status Bars -->
+  <div class="cs-section">
+    <div class="cs-label">Status</div>
+    <div class="status-bars">
+
+      <!-- HP -->
+      <div class="sbar-row" style="position:relative">
+        <div class="sbar-head">
+          <span class="sbar-label" style="color:var(--red)">HP — ENERGY</span>
+          <span class="sbar-val" id="hpVal">75/100</span>
+        </div>
+        <div class="sbar-track sbar-hp" onclick="toggleHPEdit()" title="คลิกเพื่อแก้ไข HP">
+          <div class="sbar-fill" id="hpFill" style="width:75%"></div>
+        </div>
+        <div class="sbar-sub">พลังงานวันนี้</div>
+        <!-- HP Edit popup -->
+        <div class="hp-edit-popup" id="hpEditPop">
+          <div style="font-size:10px;color:var(--tx2);margin-bottom:6px">ปรับ HP วันนี้</div>
+          <input type="range" class="hp-slider" id="hpSlider" min="0" max="100" value="75" oninput="updateHP(this.value)">
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--tx2);margin-top:4px"><span>0</span><span id="hpSliderVal">75</span><span>100</span></div>
+        </div>
+      </div>
+
+      <!-- XP -->
+      <div class="sbar-row">
+        <div class="sbar-head">
+          <span class="sbar-label" style="color:var(--qst)">XP — EXPERIENCE</span>
+          <span class="sbar-val" id="xpVal">0/1000</span>
+        </div>
+        <div class="sbar-track sbar-xp">
+          <div class="sbar-fill" id="xpFill" style="width:0%"></div>
+        </div>
+        <div class="sbar-sub" id="xpSub">Level 1 · 0 XP total</div>
+      </div>
+
+      <!-- Lifetime -->
+      <div class="sbar-row">
+        <div class="sbar-head">
+          <span class="sbar-label" style="color:var(--biz)">LIFETIME</span>
+          <span class="sbar-val" id="lifeVal">—</span>
+        </div>
+        <div class="sbar-track sbar-life">
+          <div class="sbar-fill" id="lifeFill" style="width:0%"></div>
+        </div>
+        <div class="sbar-sub" id="lifeSub">ตั้งอายุใน Profile</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mini stats -->
+  <div class="cs-section">
+    <div class="cs-label">Stats</div>
+    <div class="stat-mini-grid">
+      <div class="stat-mini"><span class="stat-mini-v" style="color:var(--fin)" id="statSav">฿0</span><span class="stat-mini-l">Savings</span></div>
+      <div class="stat-mini"><span class="stat-mini-v" style="color:var(--hlth)" id="statHP">75</span><span class="stat-mini-l">HP Today</span></div>
+      <div class="stat-mini"><span class="stat-mini-v" style="color:var(--qst)" id="statXP">0</span><span class="stat-mini-l">Total XP</span></div>
+      <div class="stat-mini"><span class="stat-mini-v" style="color:var(--tod)" id="statTodo">0</span><span class="stat-mini-l">Tasks Left</span></div>
+    </div>
+  </div>
+
+  <!-- Active quests mini -->
+  <div class="cs-section" style="flex:1">
+    <div class="cs-label">Active Quests</div>
+    <div id="sideQuests">
+      <div style="font-size:10px;color:var(--tx2);text-align:center;padding:12px">ยังไม่มี Quest<br>ไปเพิ่มใน Quest หน่อยนะ</div>
+    </div>
+  </div>
+
+</aside>
+
+<!-- Col 3: Main -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page on" id="page-dashboard">
+    <div class="page-head">
+      <div><div class="page-title">Dashboard</div><div class="page-sub">Life OS v0.8 · overview</div></div>
+      <div class="page-actions" id="dashClock" style="font-size:11px;color:var(--tx2);">--:--</div>
+    </div>
+
+    <!-- 8 Module Cards -->
+    <div class="dash-grid" style="margin-bottom:20px">
+      <div class="mod-card" onclick="goto('financial',document.querySelectorAll('.ni')[1])">
+        <div class="mod-card-accent" style="background:var(--fin)"></div>
+        <div class="mod-card-icon">💰</div>
+        <div class="mod-card-title">Financial</div>
+        <div class="mod-card-sub">เงินเก็บ · หนี้สิน · ลงทุน</div>
+        <div class="mod-card-val" style="color:var(--fin)">฿<span id="dashFinVal">0</span></div>
+      </div>
+      <div class="mod-card" onclick="goto('health',document.querySelectorAll('.ni')[2])">
+        <div class="mod-card-accent" style="background:var(--hlth)"></div>
+        <div class="mod-card-icon">❤️</div>
+        <div class="mod-card-title">Health</div>
+        <div class="mod-card-sub">BMI · ออกกำลังกาย · อาหาร</div>
+        <div class="mod-card-val" style="color:var(--hlth)" id="dashBMI">BMI —</div>
+      </div>
+      <div class="mod-card" onclick="goto('future',document.querySelectorAll('.ni')[3])">
+        <div class="mod-card-accent" style="background:var(--fut)"></div>
+        <div class="mod-card-icon">🌟</div>
+        <div class="mod-card-title">Future Plan</div>
+        <div class="mod-card-sub">เป้าหมายชีวิต · บ้าน รถ ครอบครัว</div>
+        <div class="mod-card-val" style="color:var(--fut)"><span id="dashGoals">0</span> goals</div>
+      </div>
+      <div class="mod-card" onclick="goto('family',document.querySelectorAll('.ni')[4])">
+        <div class="mod-card-accent" style="background:var(--fam)"></div>
+        <div class="mod-card-icon">👨‍👩‍👧</div>
+        <div class="mod-card-title">Family</div>
+        <div class="mod-card-sub">ข้อมูลบุคคลในครอบครัว</div>
+        <div class="mod-card-val" style="color:var(--fam)"><span id="dashFam">0</span> members</div>
+      </div>
+      <div class="mod-card" onclick="goto('business',document.querySelectorAll('.ni')[5])">
+        <div class="mod-card-accent" style="background:var(--biz)"></div>
+        <div class="mod-card-icon">💼</div>
+        <div class="mod-card-title">Business</div>
+        <div class="mod-card-sub">งาน · ธุรกิจ · เป้าหมายอาชีพ</div>
+        <div class="mod-card-val" style="color:var(--biz)" id="dashBiz">—</div>
+      </div>
+      <div class="mod-card" onclick="goto('special',document.querySelectorAll('.ni')[6])">
+        <div class="mod-card-accent" style="background:var(--spc)"></div>
+        <div class="mod-card-icon">🎁</div>
+        <div class="mod-card-title">Special</div>
+        <div class="mod-card-sub">รางวัลตัวเอง · ขอบเขต</div>
+        <div class="mod-card-val" style="color:var(--spc)"><span id="dashRewards">0</span> rewards</div>
+      </div>
+      <div class="mod-card" onclick="goto('todo',document.querySelectorAll('.ni')[7])">
+        <div class="mod-card-accent" style="background:var(--tod)"></div>
+        <div class="mod-card-icon">✅</div>
+        <div class="mod-card-title">To-Do List</div>
+        <div class="mod-card-sub">รายการประจำวัน/เดือน/ปี</div>
+        <div class="mod-card-val" style="color:var(--tod)"><span id="dashTodo">0</span> tasks</div>
+      </div>
+      <div class="mod-card" onclick="goto('quest',document.querySelectorAll('.ni')[8])">
+        <div class="mod-card-accent" style="background:var(--qst)"></div>
+        <div class="mod-card-icon">⚔️</div>
+        <div class="mod-card-title">Quest</div>
+        <div class="mod-card-sub">เก็บ XP · อัพเกรดตัวละคร</div>
+        <div class="mod-card-val" style="color:var(--qst)" id="dashXP">0 XP</div>
+      </div>
+    </div>
+
+    <!-- Status snapshot -->
+    <div class="sum-strip" style="grid-template-columns:repeat(3,1fr)">
+      <div class="sum-cell">
+        <div class="sum-cell-accent" style="background:var(--red)"></div>
+        <div class="sum-cell-icon">⚡</div>
+        <div class="sum-cell-lbl">HP Today</div>
+        <div class="sum-cell-val" id="dashHPDisp">75<small style="font-size:13px;color:var(--tx2)">/100</small></div>
+        <div class="sum-cell-sub">พลังงานที่เหลือ</div>
+      </div>
+      <div class="sum-cell">
+        <div class="sum-cell-accent" style="background:var(--qst)"></div>
+        <div class="sum-cell-icon">✨</div>
+        <div class="sum-cell-lbl">Total XP</div>
+        <div class="sum-cell-val" id="dashXPDisp">0</div>
+        <div class="sum-cell-sub">ประสบการณ์รวม</div>
+      </div>
+      <div class="sum-cell">
+        <div class="sum-cell-accent" style="background:var(--biz)"></div>
+        <div class="sum-cell-icon">⏳</div>
+        <div class="sum-cell-lbl">Lifetime</div>
+        <div class="sum-cell-val" id="dashLifeDisp">—</div>
+        <div class="sum-cell-sub" id="dashLifeSub">ตั้งอายุใน Profile</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINANCIAL -->
+  <div class="page" id="page-financial">
+    <div class="page-head">
+      <div><div class="page-title" style="color:var(--fin)">💰 Financial</div><div class="page-sub">เงินเก็บ · หนี้สิน · การลงทุน · แผนการเงิน</div></div>
+      <div class="page-actions">
+        <button class="btn btn-sm" onclick="openAdd('loan')">+ Loan</button>
+        <button class="btn btn-sm" onclick="openAdd('saving')">+ Saving</button>
+        <button class="btn btn-sm" onclick="openAdd('expense')">+ Expense</button>
+      </div>
+    </div>
+    <!-- Summary -->
+    <div class="sum-strip">
+      <div class="sum-cell"><div class="sum-cell-accent" style="background:var(--hlth)"></div><div class="sum-cell-lbl">Total Savings</div><div class="sum-cell-val" style="color:var(--hlth)">฿<span id="finSav">0</span></div></div>
+      <div class="sum-cell"><div class="sum-cell-accent" style="background:var(--red)"></div><div class="sum-cell-lbl">Total Debt/mo</div><div class="sum-cell-val" style="color:var(--red)">฿<span id="finDebt">0</span></div></div>
+      <div class="sum-cell"><div class="sum-cell-accent" style="background:var(--fin)"></div><div class="sum-cell-lbl">Net Worth</div><div class="sum-cell-val" style="color:var(--fin)">฿<span id="finNet">0</span></div></div>
+      <div class="sum-cell"><div class="sum-cell-accent" style="background:var(--tod)"></div><div class="sum-cell-lbl">Due ≤7 days</div><div class="sum-cell-val" style="color:var(--tod)" id="finDue">0</div></div>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="section"><div class="section-title" style="color:var(--fin)">Loans</div><div class="entry-list" id="loanList"><div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ยังไม่มีข้อมูล · กด + Loan</div></div></div>
+        <div class="section"><div class="section-title" style="color:var(--red)">Expenses</div><div class="entry-list" id="expList"><div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ยังไม่มีข้อมูล · กด + Expense</div></div></div>
+      </div>
+      <div>
+        <div class="section"><div class="section-title" style="color:var(--hlth)">Savings</div><div class="entry-list" id="savList"><div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ยังไม่มีข้อมูล · กด + Saving</div></div></div>
+        <!-- Financial Goals -->
+        <div class="section">
+          <div class="section-title" style="color:var(--fut)">Financial Goals
+            <button class="btn btn-sm" style="margin-left:auto" onclick="openAdd('fingoal')">+ Goal</button>
+          </div>
+          <div class="entry-list" id="finGoalList"><div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ตั้งเป้าหมายการเงิน</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEALTH -->
+  <div class="page" id="page-health">
+    <div class="page-head">
+      <div><div class="page-title" style="color:var(--hlth)">❤️ Health</div><div class="page-sub">BMI · ออกกำลังกาย · อาหาร · เป้าหมาย</div></div>
+      <div class="page-actions"><button class="btn btn-primary btn-sm" onclick="saveHealth()">Save Health Data</button></div>
+    </div>
+    <!-- BMI card -->
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="card">
+        <div style="font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:14px">📊 ข้อมูลร่างกาย</div>
+        <div class="f-grid2">
+          <div class="f-group"><label class="f-label">น้ำหนัก (kg)</label><input class="f-input" id="hWeight" type="number" placeholder="70" oninput="calcBMI()"/></div>
+          <div class="f-group"><label class="f-label">ส่วนสูง (cm)</label><input class="f-input" id="hHeight" type="number" placeholder="170" oninput="calcBMI()"/></div>
+          <div class="f-group"><label class="f-label">กรุ๊ปเลือด</label>
+            <select class="f-select" id="hBlood"><option value="">เลือก</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select>
+          </div>
+          <div class="f-group"><label class="f-label">เพศ</label>
+            <select class="f-select" id="hGender"><option value="">เลือก</option><option>ชาย</option><option>หญิง</option><option>อื่นๆ</option></select>
+          </div>
+        </div>
+        <!-- BMI result -->
+        <div id="bmiResult" style="background:var(--bg2);border-radius:var(--r12);padding:12px;text-align:center;display:none">
+          <div style="font-size:10px;color:var(--tx2);margin-bottom:4px">BMI</div>
+          <div style="font-family:var(--font-d);font-size:32px;font-weight:800" id="bmiVal">—</div>
+          <div style="font-size:12px;margin-top:4px" id="bmiStatus">—</div>
+          <div class="prog" style="margin-top:8px"><div class="prog-fill" id="bmiBar" style="background:var(--hlth)"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:14px">🏥 ข้อมูลสุขภาพส่วนตัว</div>
+        <div class="f-group"><label class="f-label">โรคประจำตัว</label><input class="f-input" id="hConditions" placeholder="เช่น เบาหวาน, ความดัน (ถ้ามี)"/></div>
+        <div class="f-group"><label class="f-label">ยาที่ทาน</label><input class="f-input" id="hMeds" placeholder="รายการยาประจำ (ถ้ามี)"/></div>
+        <div class="f-group"><label class="f-label">อาหารแพ้</label><input class="f-input" id="hAllergy" placeholder="สิ่งที่แพ้ (ถ้ามี)"/></div>
+        <div class="f-group"><label class="f-label">เป้าหมายสุขภาพ</label><input class="f-input" id="hGoal" placeholder="เช่น ลดน้ำหนัก 5kg, วิ่ง 5K"/></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:14px">🏃 แผนออกกำลังกาย</div>
+        <div class="f-group"><label class="f-label">ประเภทการออกกำลังกาย</label><input class="f-input" id="hExType" placeholder="เช่น วิ่ง, ว่ายน้ำ, ยิม"/></div>
+        <div class="f-grid2">
+          <div class="f-group"><label class="f-label">กี่วัน/สัปดาห์</label><input class="f-input" id="hExDays" type="number" placeholder="3"/></div>
+          <div class="f-group"><label class="f-label">นาที/ครั้ง</label><input class="f-input" id="hExMins" type="number" placeholder="30"/></div>
+        </div>
+        <div class="f-group"><label class="f-label">เป้าหมายออกกำลังกาย</label><input class="f-input" id="hExGoal" placeholder="เช่น วิ่ง 5K ใน 30 นาที"/></div>
+      </div>
+      <div class="card">
+        <div style="font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:14px">🥗 แผนการกิน</div>
+        <div class="f-group"><label class="f-label">แคลอรี่เป้าหมาย/วัน</label><input class="f-input" id="hCal" type="number" placeholder="2000"/></div>
+        <div class="f-group"><label class="f-label">อาหารที่ควรหลีกเลี่ยง</label><input class="f-input" id="hAvoid" placeholder="เช่น อาหารทอด น้ำตาลสูง"/></div>
+        <div class="f-group"><label class="f-label">อาหารที่เพิ่มเติม</label><input class="f-input" id="hAdd" placeholder="เช่น โปรตีนสูง ผักผลไม้มาก"/></div>
+        <div class="f-group"><label class="f-label">น้ำ/วัน (แก้ว)</label><input class="f-input" id="hWater" type="number" placeholder="8"/></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FUTURE PLAN -->
+  <div class="page" id="page-future">
+    <div class="page-head">
+      <div><div class="page-title" style="color:var(--fut)">🌟 Future Plan</div><div class="page-sub">เป้าหมายชีวิต · Kanban Board</div></div>
+      <div class="page-actions"><button class="btn btn-primary btn-sm" onclick="openAdd('goal')">+ Add Goal</button></div>
+    </div>
+    <div class="kanban" id="kanbanBoard">
+      <div class="kanban-col">
+        <div class="kanban-col-title"><div class="kanban-dot" style="background:#555"></div>Dream</div>
+        <div id="k-dream"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-col-title"><div class="kanban-dot" style="background:var(--biz)"></div>Planning</div>
+        <div id="k-plan"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-col-title"><div class="kanban-dot" style="background:var(--orange)"></div>In Progress</div>
+        <div id="k-progress"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-col-title"><div class="kanban-dot" style="background:var(--hlth)"></div>Done ✓</div>
+        <div id="k-done"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAMILY -->
+  <div class="page" id="page-family">
+    <div class="page-head">
+      <div><div class="page-title" style="color:var(--fam)">👨‍👩‍👧 Family</div><div class="page-sub">ข้อมูลบุคคลในครอบครัว</div></div>
+      <div class="page-actions"><button class="btn btn-primary btn-sm" onclick="openAdd('member')">+ Add Member</button></div>
+    </div>
+    <div class="family-grid" id="familyGrid">
+      <div style="color:var(--tx2);font-size:11px;padding:20px;text-align:center;background:var(--bg1);border-radius:var(--r16);border:1px dashed var(--b1)">เพิ่มสมาชิกครอบครัว</div>
+    </div>
+  </div>
+
+  <!-- BUSINESS -->
+  <div class="page" id="page-business">
+    <div class="page-head">
+      <div><div class="page-title" style="color:var(--biz)">💼 Business</div><div class="page-sub">งาน · ธุรกิจ · เป้าหมายอาชีพ</div></div>
+      <div class="page-actions"><button class="btn btn-primary btn-sm" onclick="saveBusiness()">Save</button></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:14px">🏢 งานปัจจุบัน</div>
+        <div class="f-group"><label class="f-label">ตำแหน่ง</label><input class="f-input" id="bizRole" placeholder="เช่น Engineer, Manager"/></div>
+        <div class="f-group"><label class="f-label">บริษัท/องค์กร</label><input class="f-input" id="bizCompany" placeholder="ชื่อบริษัท"/></div>
+        <div class="f-group"><label class="f-label">เงินเดือน (฿)</label><input class="f-input" id="bizSalary" type="number" placeholder="50000"/></div>
+        <div class="f-group"><label class="f-label">เป้าหมายอาชีพ</label><input class="f-input" id="bizCareerGoal" placeholder="เช่น เป็น Senior ใน 2 ปี"/></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-family:var(--font-d);font-size:14px;font-weight:700">🚀 ธุรกิจ / Side Project</div>
+          <button class="btn btn-sm" onclick="openAdd('biz')">+ Add</button>
+        </div>
+        <div class="entry-list" id="bizList"><div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">เพิ่มธุรกิจหรือ side project</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPECIAL -->
+  <div class="page" id="page-special">
+    <div class="page-head">
+      <div><div class="page-title" style="color:var(--spc)">🎁 Special</div><div class="page-sub">รางวัลตัวเอง · รางวัลผู้อื่น · ขอบเขต</div></div>
+      <div class="page-actions"><button class="btn btn-primary btn-sm" onclick="openAdd('reward')">+ Add Reward</button></div>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="section"><div class="section-title" style="color:var(--spc)">รางวัลตัวเอง</div><div id="selfRewards"><div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">เพิ่มรางวัลที่จะให้ตัวเอง</div></div></div>
+      </div>
+      <div>
+        <div class="section"><div class="section-title" style="color:var(--fam)">รางวัลผู้อื่น</div><div id="otherRewards"><div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">เพิ่มรางวัลที่จะให้คนอื่น</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TODO -->
+  <div class="page" id="page-todo">
+    <div class="page-head">
+      <div><div class="page-title" style="color:var(--tod)">✅ To-Do List</div><div class="page-sub">รายการที่ต้องทำ · วัน/เดือน/ปี</div></div>
+      <div class="page-actions">
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-sm" id="todayBtn" onclick="filterTodo('today',this)">วันนี้</button>
+          <button class="btn btn-sm" onclick="filterTodo('week',this)">สัปดาห์</button>
+          <button class="btn btn-sm" onclick="filterTodo('month',this)">เดือน</button>
+          <button class="btn btn-sm" onclick="filterTodo('year',this)">ปี</button>
+          <button class="btn btn-sm" onclick="filterTodo('all',this)">ทั้งหมด</button>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAdd('todo')">+ Add Task</button>
+      </div>
+    </div>
+    <div id="todoList"></div>
+  </div>
+
+  <!-- QUEST -->
+  <div class="page" id="page-quest">
+    <div class="page-head">
+      <div><div class="page-title" style="color:var(--qst)">⚔️ Quest</div><div class="page-sub">เก็บ XP · อัพเกรดตัวละคร</div></div>
+      <div class="page-actions">
+        <div style="font-family:var(--font-px);font-size:6px;color:var(--qst);border:1px solid var(--qst);padding:6px 12px;border-radius:var(--r8)">XP: <span id="questXPDisp">0</span></div>
+        <button class="btn btn-primary btn-sm" onclick="openAdd('quest')">+ Add Quest</button>
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="section"><div class="section-title" style="color:var(--qst)">Active Quests</div><div id="activeQuests"><div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ยังไม่มี Quest ที่ active</div></div></div>
+      </div>
+      <div>
+        <div class="section"><div class="section-title" style="color:var(--hlth)">Completed</div><div id="doneQuests"><div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ยังไม่มี Quest ที่เสร็จ</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="page" id="page-profile">
+    <div class="page-head">
+      <div><div class="page-title">👤 Profile</div><div class="page-sub">Character · Personal Info</div></div>
+      <div class="page-actions"><button class="btn btn-primary btn-sm" onclick="saveProfile()">Save Profile</button></div>
+    </div>
+    <div class="grid2">
+      <!-- Character editor -->
+      <div class="card">
+        <div style="font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:14px">🎮 Character Editor</div>
+        <div style="text-align:center;background:var(--bg2);border-radius:var(--r16);padding:20px;margin-bottom:16px;position:relative;overflow:hidden">
+          <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 5px,rgba(255,255,255,.015) 5px,rgba(255,255,255,.015) 6px),repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(255,255,255,.015) 5px,rgba(255,255,255,.015) 6px);pointer-events:none"></div>
+          <canvas id="charCanvasLarge" width="96" height="128" style="display:block;margin:0 auto 10px;image-rendering:pixelated;"></canvas>
+          <div style="font-family:var(--font-d);font-size:16px;font-weight:700" id="profileNameDisp">PROTON</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px" id="profileClassDisp">Life Engineer</div>
+        </div>
+        <!-- Options -->
+        <div class="char-opt-group"><div class="char-opt-label">Skin Tone</div><div class="char-opt-row" id="eSkin"><div class="col-b sel" style="background:#FFCBA4" onclick="CE.set('skin',0,this)"></div><div class="col-b" style="background:#E8A882" onclick="CE.set('skin',1,this)"></div><div class="col-b" style="background:#C68642" onclick="CE.set('skin',2,this)"></div><div class="col-b" style="background:#8D5524" onclick="CE.set('skin',3,this)"></div><div class="col-b" style="background:#4A2912" onclick="CE.set('skin',4,this)"></div></div></div>
+        <div class="char-opt-group"><div class="char-opt-label">Hair Style</div><div class="char-opt-row" id="eHair"><div class="opt-b sel" onclick="CE.set('hair',0,this)">Short</div><div class="opt-b" onclick="CE.set('hair',1,this)">Long</div><div class="opt-b" onclick="CE.set('hair',2,this)">Spiky</div><div class="opt-b" onclick="CE.set('hair',3,this)">Mohawk</div><div class="opt-b" onclick="CE.set('hair',4,this)">Bald</div></div></div>
+        <div class="char-opt-group"><div class="char-opt-label">Hair Color</div><div class="char-opt-row" id="eHairC"><div class="col-b sel" style="background:#1a1a1a" onclick="CE.set('hairC',0,this)"></div><div class="col-b" style="background:#5C3317" onclick="CE.set('hairC',1,this)"></div><div class="col-b" style="background:#D4A827" onclick="CE.set('hairC',2,this)"></div><div class="col-b" style="background:#C1272D" onclick="CE.set('hairC',3,this)"></div><div class="col-b" style="background:#6B5B95" onclick="CE.set('hairC',4,this)"></div><div class="col-b" style="background:#3a7bd5" onclick="CE.set('hairC',5,this)"></div><div class="col-b" style="background:#eeeeee" onclick="CE.set('hairC',6,this)"></div><div class="col-b" style="background:#c6f135" onclick="CE.set('hairC',7,this)"></div></div></div>
+        <div class="char-opt-group"><div class="char-opt-label">Eyes</div><div class="char-opt-row" id="eEyes"><div class="opt-b sel" onclick="CE.set('eyes',0,this)">Normal</div><div class="opt-b" onclick="CE.set('eyes',1,this)">Happy</div><div class="opt-b" onclick="CE.set('eyes',2,this)">Cool</div><div class="opt-b" onclick="CE.set('eyes',3,this)">Star</div><div class="opt-b" onclick="CE.set('eyes',4,this)">Sleepy</div></div></div>
+        <div class="char-opt-group"><div class="char-opt-label">Outfit</div><div class="char-opt-row" id="eOutfit"><div class="opt-b sel" onclick="CE.set('outfit',0,this)">Casual</div><div class="opt-b" onclick="CE.set('outfit',1,this)">Business</div><div class="opt-b" onclick="CE.set('outfit',2,this)">Warrior</div><div class="opt-b" onclick="CE.set('outfit',3,this)">Mage</div><div class="opt-b" onclick="CE.set('outfit',4,this)">Ninja</div><div class="opt-b" onclick="CE.set('outfit',5,this)">Hacker</div></div></div>
+        <div class="char-opt-group"><div class="char-opt-label">Accessory</div><div class="char-opt-row" id="eAcc"><div class="opt-b sel" onclick="CE.set('acc',0,this)">None</div><div class="opt-b" onclick="CE.set('acc',1,this)">🎩 Hat</div><div class="opt-b" onclick="CE.set('acc',2,this)">👑 Crown</div><div class="opt-b" onclick="CE.set('acc',3,this)">🎧 Headset</div><div class="opt-b" onclick="CE.set('acc',4,this)">⚔️ Sword</div></div></div>
+      </div>
+      <!-- Personal info -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <div style="font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:14px">Personal Info</div>
+          <div class="f-group"><label class="f-label">Display Name</label><input class="f-input" id="pName" maxlength="20"/></div>
+          <div class="f-group"><label class="f-label">Class / Title</label><input class="f-input" id="pClass" placeholder="Life Engineer..."/></div>
+          <div class="f-grid2">
+            <div class="f-group"><label class="f-label">อายุปัจจุบัน</label><input class="f-input" id="pAge" type="number" placeholder="29" oninput="updateLifetime()"/></div>
+            <div class="f-group"><label class="f-label">เป้าหมายอายุ</label><input class="f-input" id="pTargetAge" type="number" placeholder="80" oninput="updateLifetime()"/></div>
+          </div>
+          <div class="f-group"><label class="f-label">Email</label><input class="f-input" id="pEmail" type="email" placeholder="your@email.com"/></div>
+          <div class="f-group"><label class="f-label">Bio / Motto</label><input class="f-input" id="pBio" placeholder="คติประจำใจ..."/></div>
+          <div class="f-actions">
+            <button class="f-save" onclick="saveProfile()">Save Profile</button>
+          </div>
+        </div>
+        <!-- Account -->
+        <div class="card">
+          <div style="font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:12px">Account</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--bg2);border-radius:var(--r12);margin-bottom:8px">
+            <div><div style="font-size:12px;font-weight:500" id="acctTypeDisp">Guest Account</div><div style="font-size:10px;color:var(--tx2)">ข้อมูลเก็บใน browser</div></div>
+          </div>
+          <button onclick="LS.logout()" style="width:100%;background:transparent;border:1px solid rgba(239,68,68,.3);border-radius:var(--r12);color:var(--red);font-family:var(--font-b);font-size:12px;padding:10px;cursor:pointer;transition:all .15s" onmouseover="this.style.background='var(--red-d)'" onmouseout="this.style.background='transparent'">Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main><!-- /main -->
+
+<!-- Col 4: Right Panel -->
+<aside class="rpanel">
+  <div class="rp-head">
+    <div><div class="rp-head-title">Electron AI</div><div class="rp-head-sub" id="aiSrcLbl">Claude · sonnet-4-6</div></div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <div style="width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 6px var(--lime)"></div>
+      <button class="key-btn-sm" onclick="openModal('keyModal')">🔑</button>
+    </div>
+  </div>
+  <div class="rp-src">
+    <button class="src-btn ac-claude" data-s="claude" onclick="setAISrc(this)">Claude</button>
+    <button class="src-btn" data-s="gpt" onclick="setAISrc(this)">GPT</button>
+    <button class="src-btn" data-s="gemini" onclick="setAISrc(this)">Gemini</button>
+  </div>
+  <div class="ai-chat" id="aiChat">
+    <div class="ai-bubble">สวัสดี โปรตอน! Life OS v0.8 พร้อมแล้ว 🚀 ลอง explore แต่ละ module ดูนะ</div>
+  </div>
+  <div class="ai-input-bar">
+    <input class="ai-input" id="aiIn" placeholder="ถามอะไรก็ได้..." onkeydown="if(event.key==='Enter')sendAI()"/>
+    <button class="ai-send" id="aiSend" onclick="sendAI()">➤</button>
+  </div>
+  <div class="sys-log" id="sysLog">
+    <div class="slog slog-ok">[boot] Life OS v0.8</div>
+    <div class="slog slog-info">[ui] 8 modules loaded</div>
+    <div class="slog">[ai] Electron AI standby</div>
+  </div>
+</aside>
+
+</div><!-- /app -->
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Add Entry Modal -->
+<div class="modal-bg" id="addModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><div class="modal-title" id="addModalTitle">+ Add</div><button class="modal-close" onclick="closeModal('addModal')">✕</button></div>
+    <div class="modal-body" id="addModalBody"></div>
+  </div>
+</div>
+
+<!-- API Keys -->
+<div class="modal-bg" id="keyModal">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-head"><div class="modal-title">🔑 API Keys</div><button class="modal-close" onclick="closeModal('keyModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="f-group"><label class="f-label" style="color:var(--purple)">Claude (Anthropic)</label><input class="f-input" id="kC" type="password" placeholder="sk-ant-..."/></div>
+      <div class="f-group"><label class="f-label" style="color:var(--hlth)">GPT (OpenAI)</label><input class="f-input" id="kG" type="password" placeholder="sk-..."/></div>
+      <div class="f-group"><label class="f-label" style="color:var(--biz)">Gemini (Google)</label><input class="f-input" id="kGem" type="password" placeholder="AIza..."/></div>
+      <div style="font-size:10px;color:var(--tx2);margin:10px 0;line-height:1.7">🔒 เก็บใน localStorage เท่านั้น ไม่ส่งไปไหน</div>
+      <div class="f-actions"><button class="f-save" onclick="saveAPIKeys()">Save Keys</button><button class="f-cancel" onclick="closeModal('keyModal')">Cancel</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span class="toast-title" id="tTitle">—</span><span class="toast-msg" id="tMsg">—</span></div>
+
+<script>
+'use strict';
+
+/* ═══ UTILS ═══ */
+const fmt=n=>Number(n||0).toLocaleString('th-TH');
+const daysLeft=day=>{const n=new Date();let t=new Date(n.getFullYear(),n.getMonth(),day);if(t<=n)t=new Date(n.getFullYear(),n.getMonth()+1,day);return Math.ceil((t-n)/86400000);};
+const byId=id=>document.getElementById(id);
+const setText=(id,v)=>{const e=byId(id);if(e)e.textContent=v;};
+
+/* ═══ DATA STORE ═══ */
+const DB = {
+  keys:{fin:'lo_fin',health:'lo_health',future:'lo_future',family:'lo_family',biz:'lo_biz',special:'lo_special',todo:'lo_todo',quest:'lo_quest',user:'lo_user',char:'lo_char',hp:'lo_hp',xp:'lo_xp'},
+  get(k){ try{return JSON.parse(localStorage.getItem(this.keys[k])||'null');}catch{return null;} },
+  set(k,v){ localStorage.setItem(this.keys[k],JSON.stringify(v)); },
+  def:{
+    fin:{loans:[],savings:[],expenses:[],goals:[]},
+    health:{weight:'',height:'',blood:'',gender:'',conditions:'',meds:'',allergy:'',hGoal:'',exType:'',exDays:'',exMins:'',exGoal:'',cal:'',avoid:'',add:'',water:''},
+    future:[],family:[],
+    biz:{role:'',company:'',salary:'',careerGoal:'',projects:[]},
+    special:{self:[],other:[]},
+    todo:[],quest:[],
+    user:{name:'Proton',class:'Life Engineer',email:'',bio:'',age:'',targetAge:'',type:'guest',avatar:'⚛',lv:1},
+    char:{skin:0,hair:0,hairC:0,eyes:0,outfit:0,acc:0},
+  },
+  load(k){ return this.get(k)||JSON.parse(JSON.stringify(this.def[k]||{})); }
+};
+
+/* ═══ LOGGER ═══ */
+const Log = {
+  log(msg,t=''){const el=byId('sysLog');if(!el)return;const l=document.createElement('div');l.className='slog'+(t?' slog-'+t:'');const n=new Date();l.textContent=`[${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}] ${msg}`;el.appendChild(l);el.scrollTop=el.scrollHeight;},
+  ok(m){this.log(m,'ok');},info(m){this.log(m,'info');},warn(m){this.log(m,'warn');},err(m){this.log(m,'err');}
+};
+
+/* ═══ TOAST ═══ */
+let _tt;
+function toast(title,msg,color='var(--lime)'){
+  setText('tTitle',title); setText('tMsg',msg);
+  const el=byId('toast'); el.style.borderLeftColor=color;
+  el.style.display='block'; el.style.animation='none'; void el.offsetWidth;
+  el.style.animation='slideR .25s ease';
+  clearTimeout(_tt); _tt=setTimeout(()=>el.style.display='none',4000);
+}
+
+/* ═══ MODAL ═══ */
+function openModal(id){byId(id).classList.add('open');}
+function closeModal(id){byId(id).classList.remove('open');}
+
+/* ═══ CLOCK ═══ */
+function initClock(){
+  const tick=()=>{
+    const n=new Date(),p=v=>String(v).padStart(2,'0');
+    const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const mos=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const s=`${days[n.getDay()]} ${n.getDate()} ${mos[n.getMonth()]}  ${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
+    setText('dashClock',s);
+  };
+  tick(); setInterval(tick,1000);
+}
+
+/* ═══ ROUTER ═══ */
+function goto(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  const pg=byId('page-'+id); if(pg)pg.classList.add('on');
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  Log.info('Page: '+id);
+  if(id==='financial')renderFin();
+  if(id==='future')renderFuture();
+  if(id==='family')renderFamily();
+  if(id==='special')renderSpecial();
+  if(id==='todo')renderTodo();
+  if(id==='quest')renderQuest();
+  if(id==='business')loadBusiness();
+  if(id==='health')loadHealth();
+  if(id==='profile'){loadProfile(); setTimeout(()=>CE.drawAll(),100);}
+}
+
+/* ═══ CHARACTER EDITOR ═══ */
+const CE = {
+  s:{skin:0,hair:0,hairC:0,eyes:0,outfit:0,acc:0},
+  skinC:['#FFCBA4','#E8A882','#C68642','#8D5524','#4A2912'],
+  hairC:['#1a1a1a','#5C3317','#D4A827','#C1272D','#6B5B95','#3a7bd5','#eeeeee','#c6f135'],
+  outfitC:['#3a3a5c','#1a3a5c','#5c2020','#2a1a5c','#111111','#0a2a15'],
+
+  set(type,val,btn){
+    this.s[type]=val;
+    const maps={skin:'eSkin',hair:'eHair',hairC:'eHairC',eyes:'eEyes',outfit:'eOutfit',acc:'eAcc'};
+    const g=byId(maps[type]);
+    if(g)g.querySelectorAll('.opt-b,.col-b').forEach(b=>b.classList.remove('sel'));
+    if(btn)btn.classList.add('sel');
+    this.drawAll(); this.save();
+  },
+
+  draw(canvasId){
+    const c=byId(canvasId); if(!c)return;
+    const ctx=c.getContext('2d'); const W=c.width,H=c.height;
+    ctx.clearRect(0,0,W,H);
+    const pk=W===80?3:4; // pixel size
+    const sk=this.skinC[this.s.skin];
+    const hc=this.hairC[this.s.hairC];
+    const oc=this.outfitC[this.s.outfit];
+    const R=(x,y,w,h,col)=>{ctx.fillStyle=col;ctx.fillRect(x*pk,y*pk,w*pk,h*pk);};
+    // Shadow
+    ctx.fillStyle='rgba(0,0,0,.12)'; ctx.beginPath(); ctx.ellipse(W/2,H-4,12,3,0,0,Math.PI*2); ctx.fill();
+    // Shoes
+    R(3,28,5,2,'#222'); R(10,28,5,2,'#222');
+    // Legs
+    R(4,22,4,6,this.s.outfit===4?'#111':'#2a2a40'); R(10,22,4,6,this.s.outfit===4?'#111':'#2a2a40');
+    // Body
+    R(3,13,12,9,oc);
+    // Outfit detail
+    if(this.s.outfit===5){ctx.fillStyle='#00ff41'; ctx.fillRect(5*pk,14*pk,2*pk,2*pk);}
+    else if(this.s.outfit===1){R(8,14,2,5,'rgba(255,255,255,.15)'); R(5,14,3,1,'rgba(255,255,255,.1)');}
+    else if(this.s.outfit===2){R(5,13,2,2,'#c0c0c0'); R(11,13,2,2,'#c0c0c0');}
+    // Neck
+    R(7,11,4,2,sk);
+    // Head
+    R(3,4,12,7,sk);
+    // Hair
+    if(this.s.hair===0){R(3,2,12,3,hc);R(2,3,1,3,hc);R(15,3,1,3,hc);}
+    else if(this.s.hair===1){R(3,2,12,3,hc);R(2,3,1,7,hc);R(15,3,1,7,hc);R(3,10,3,2,hc);R(12,10,3,2,hc);}
+    else if(this.s.hair===2){R(5,0,3,3,hc);R(9,1,3,2,hc);R(13,0,3,3,hc);R(3,2,12,2,hc);R(2,3,1,2,hc);R(15,3,1,2,hc);}
+    else if(this.s.hair===3){R(8,0,3,4,hc);R(7,1,1,3,hc);R(11,1,1,3,hc);R(3,3,12,1,hc);}
+    // Eyes
+    const ey=6;
+    if(this.s.eyes===0){R(5,ey,2,2,'#111');R(11,ey,2,2,'#111');R(6,ey,1,1,'#fff');R(12,ey,1,1,'#fff');}
+    else if(this.s.eyes===1){ctx.fillStyle='#111';ctx.beginPath();ctx.arc(6*pk+pk,ey*pk+pk,pk*.9,Math.PI,0);ctx.fill();ctx.beginPath();ctx.arc(12*pk+pk,ey*pk+pk,pk*.9,Math.PI,0);ctx.fill();}
+    else if(this.s.eyes===2){R(4,ey,5,2,'#111');R(10,ey,5,2,'#111');R(9,ey,2,1,'#444');}
+    else if(this.s.eyes===3){ctx.fillStyle='#f5c842';ctx.font=`${pk*2}px serif`;ctx.fillText('✦',4*pk,ey*pk+pk*2.2);ctx.fillText('✦',10*pk,ey*pk+pk*2.2);}
+    else{ctx.strokeStyle='#111';ctx.lineWidth=pk*.5;ctx.beginPath();ctx.moveTo(5*pk,ey*pk+pk);ctx.lineTo(7*pk,ey*pk+pk);ctx.stroke();ctx.beginPath();ctx.moveTo(11*pk,ey*pk+pk);ctx.lineTo(13*pk,ey*pk+pk);ctx.stroke();}
+    // Mouth
+    ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fillRect(7*pk,9*pk,4*pk,pk*.7);
+    // Ears
+    R(2,6,1,2,sk); R(15,6,1,2,sk);
+    // Accessories
+    if(this.s.acc===1){R(2,1,14,2,hc||'#5c3317');R(3,3,12,1,hc||'#5c3317');}
+    else if(this.s.acc===2){R(3,1,12,2,'#f5c842');R(4,0,3,2,'#f5c842');R(9,0,2,2,'#f5c842');R(13,0,3,2,'#f5c842');R(6,1,1,1,'#e74c3c');R(11,1,1,1,'#3498db');}
+    else if(this.s.acc===3){R(2,4,1,5,'#222');R(15,4,1,5,'#222');R(2,4,14,2,'#333');R(2,8,2,2,'#e74c3c');R(14,8,2,2,'#e74c3c');}
+    else if(this.s.acc===4){R(17,13,1,10,'#aaa');R(16,12,3,1,'#888');}
+    // Pixel grid overlay
+    ctx.strokeStyle='rgba(255,255,255,.025)'; ctx.lineWidth=.5;
+    for(let x=0;x<=W;x+=pk){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<=H;y+=pk){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  },
+
+  drawAll(){
+    this.draw('charCanvas'); this.draw('charCanvasLarge');
+  },
+
+  save(){DB.set('char',this.s);},
+
+  load(){
+    const saved=DB.load('char');
+    if(saved)this.s=saved;
+    // Restore UI
+    const maps={skin:'eSkin',hair:'eHair',hairC:'eHairC',eyes:'eEyes',outfit:'eOutfit',acc:'eAcc'};
+    Object.entries(this.s).forEach(([k,v])=>{
+      const g=byId(maps[k]);
+      if(!g)return;
+      const btns=g.querySelectorAll('.opt-b,.col-b');
+      btns.forEach(b=>b.classList.remove('sel'));
+      if(btns[v])btns[v].classList.add('sel');
+    });
+    this.drawAll();
+  }
+};
+
+/* ═══ HP / XP / LIFETIME ═══ */
+let currentHP=DB.get('hp')??75;
+let currentXP=DB.get('xp')??0;
+
+function updateHP(v){
+  currentHP=parseInt(v); DB.set('hp',currentHP);
+  byId('hpFill').style.width=currentHP+'%';
+  setText('hpVal',currentHP+'/100');
+  setText('statHP',currentHP);
+  setText('dashHPDisp',currentHP);
+  byId('hpSliderVal').textContent=currentHP;
+  const col=currentHP>60?'var(--hlth)':currentHP>30?'var(--orange)':'var(--red)';
+  byId('hpFill').style.background=`linear-gradient(90deg,${col},${col}aa)`;
+}
+
+function toggleHPEdit(){
+  const p=byId('hpEditPop');
+  p.classList.toggle('open');
+  byId('hpSlider').value=currentHP;
+  byId('hpSliderVal').textContent=currentHP;
+}
+
+function addXP(amount){
+  currentXP+=amount; DB.set('xp',currentXP);
+  const lv=Math.floor(currentXP/1000)+1;
+  const xpInLv=currentXP%1000;
+  const u=DB.load('user'); u.lv=lv; DB.set('user',u);
+  byId('xpFill').style.width=(xpInLv/10)+'%';
+  setText('xpVal',xpInLv+'/1000');
+  setText('xpSub',`Level ${lv} · ${currentXP} XP total`);
+  setText('statXP',currentXP);
+  setText('dashXP',currentXP+' XP');
+  setText('dashXPDisp',currentXP);
+  setText('questXPDisp',currentXP);
+  setText('navLv','LV'+lv);
+  byId('sbarLv').textContent='LV '+lv;
+}
+
+function updateLifetime(){
+  const u=DB.load('user');
+  const age=parseInt(byId('pAge')?.value||u.age||0);
+  const target=parseInt(byId('pTargetAge')?.value||u.targetAge||80);
+  if(!age||!target)return;
+  const pct=Math.min(100,Math.round(age/target*100));
+  const left=target-age;
+  byId('lifeFill').style.width=pct+'%';
+  setText('lifeVal',`${age}/${target}`);
+  setText('lifeSub',`เหลืออีก ${left} ปี (${100-pct}%)`);
+  setText('dashLifeDisp',`${age}/${target}y`);
+  setText('dashLifeSub',`เหลือ ${left} ปี`);
+}
+
+/* ═══ ADD MODAL FACTORY ═══ */
+let currentAddType='';
+const addForms = {
+  loan:`<div class="f-group"><label class="f-label">ชื่อ</label><input class="f-input" id="aName" placeholder="บ้าน, Toyota Yaris..."/></div>
+    <div class="f-grid2"><div class="f-group"><label class="f-label">ยอดผ่อน/เดือน (฿)</label><input class="f-input" id="aMo" type="number"/></div><div class="f-group"><label class="f-label">งวดทั้งหมด</label><input class="f-input" id="aTotal" type="number"/></div><div class="f-group"><label class="f-label">จ่ายแล้ว (งวด)</label><input class="f-input" id="aPaid" type="number"/></div><div class="f-group"><label class="f-label">Due (วันที่)</label><input class="f-input" id="aDue" type="number" min="1" max="31"/></div></div>
+    <div class="f-group"><label class="f-label">Icon</label><div class="icon-row"><span class="ip" onclick="byId('aIcon').value=this.textContent">🏠</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🚗</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🛵</span><span class="ip" onclick="byId('aIcon').value=this.textContent">💳</span><span class="ip" onclick="byId('aIcon').value=this.textContent">📱</span></div><input class="f-input" id="aIcon" placeholder="🏠" style="width:52px;text-align:center;font-size:16px;margin-top:6px"/></div>
+    <div class="f-actions"><button class="f-save" onclick="saveAdd()">Save</button><button class="f-cancel" onclick="closeModal('addModal')">Cancel</button></div>`,
+
+  saving:`<div class="f-group"><label class="f-label">ชื่อบัญชี/กองทุน</label><input class="f-input" id="aName" placeholder="บัญชีออมทรัพย์, กองทุน LTF..."/></div>
+    <div class="f-grid2"><div class="f-group"><label class="f-label">ยอดปัจจุบัน (฿)</label><input class="f-input" id="aBal" type="number"/></div><div class="f-group"><label class="f-label">ออม/เดือน (฿)</label><input class="f-input" id="aSmo" type="number"/></div></div>
+    <div class="f-group"><label class="f-label">เป้าหมาย (฿)</label><input class="f-input" id="aGoal" type="number"/></div>
+    <div class="f-group"><label class="f-label">Icon</label><div class="icon-row"><span class="ip" onclick="byId('aIcon').value=this.textContent">💎</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🏦</span><span class="ip" onclick="byId('aIcon').value=this.textContent">📈</span><span class="ip" onclick="byId('aIcon').value=this.textContent">💰</span></div><input class="f-input" id="aIcon" placeholder="💎" style="width:52px;text-align:center;font-size:16px;margin-top:6px"/></div>
+    <div class="f-actions"><button class="f-save" onclick="saveAdd()">Save</button><button class="f-cancel" onclick="closeModal('addModal')">Cancel</button></div>`,
+
+  expense:`<div class="f-group"><label class="f-label">ชื่อ</label><input class="f-input" id="aName" placeholder="ค่าโทรศัพท์, Netflix..."/></div>
+    <div class="f-grid2"><div class="f-group"><label class="f-label">จำนวน/เดือน (฿)</label><input class="f-input" id="aAmt" type="number"/></div><div class="f-group"><label class="f-label">Due (วันที่)</label><input class="f-input" id="aDue" type="number" min="1" max="31"/></div></div>
+    <div class="f-group"><label class="f-label">Icon</label><div class="icon-row"><span class="ip" onclick="byId('aIcon').value=this.textContent">💡</span><span class="ip" onclick="byId('aIcon').value=this.textContent">📱</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🍔</span><span class="ip" onclick="byId('aIcon').value=this.textContent">⚡</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🎮</span></div><input class="f-input" id="aIcon" placeholder="💡" style="width:52px;text-align:center;font-size:16px;margin-top:6px"/></div>
+    <div class="f-actions"><button class="f-save" onclick="saveAdd()">Save</button><button class="f-cancel" onclick="closeModal('addModal')">Cancel</button></div>`,
+
+  fingoal:`<div class="f-group"><label class="f-label">เป้าหมาย</label><input class="f-input" id="aName" placeholder="เก็บเงินซื้อบ้าน, กองทุนฉุกเฉิน..."/></div>
+    <div class="f-grid2"><div class="f-group"><label class="f-label">เป้าหมาย (฿)</label><input class="f-input" id="aTarget" type="number"/></div><div class="f-group"><label class="f-label">มีแล้ว (฿)</label><input class="f-input" id="aCurrent" type="number"/></div></div>
+    <div class="f-group"><label class="f-label">กำหนดเวลา</label><input class="f-input" id="aDeadline" type="date"/></div>
+    <div class="f-actions"><button class="f-save" onclick="saveAdd()">Save</button><button class="f-cancel" onclick="closeModal('addModal')">Cancel</button></div>`,
+
+  goal:`<div class="f-group"><label class="f-label">เป้าหมาย</label><input class="f-input" id="aName" placeholder="ซื้อบ้าน, แต่งงาน, เที่ยวยุโรป..."/></div>
+    <div class="f-group"><label class="f-label">หมวดหมู่</label><select class="f-select" id="aCat"><option value="🏠">🏠 บ้าน</option><option value="🚗">🚗 รถ</option><option value="💒">💒 แต่งงาน</option><option value="👶">👶 มีลูก</option><option value="✈️">✈️ ท่องเที่ยว</option><option value="💼">💼 อาชีพ</option><option value="📚">📚 การศึกษา</option><option value="🎯">🎯 อื่นๆ</option></select></div>
+    <div class="f-group"><label class="f-label">สถานะ</label><select class="f-select" id="aStatus"><option value="dream">Dream</option><option value="plan">Planning</option><option value="progress">In Progress</option><option value="done">Done</option></select></div>
+    <div class="f-grid2"><div class="f-group"><label class="f-label">งบประมาณ (฿)</label><input class="f-input" id="aBudget" type="number"/></div><div class="f-group"><label class="f-label">กำหนด</label><input class="f-input" id="aDeadline" type="date"/></div></div>
+    <div class="f-group"><label class="f-label">รายละเอียด</label><textarea class="f-textarea" id="aDesc" placeholder="บรรยายเป้าหมาย..."></textarea></div>
+    <div class="f-actions"><button class="f-save" onclick="saveAdd()">Save</button><button class="f-cancel" onclick="closeModal('addModal')">Cancel</button></div>`,
+
+  member:`<div class="f-group"><label class="f-label">ชื่อ</label><input class="f-input" id="aName" placeholder="ชื่อ-นามสกุล"/></div>
+    <div class="f-grid2"><div class="f-group"><label class="f-label">ความสัมพันธ์</label><select class="f-select" id="aRel"><option>พ่อ</option><option>แม่</option><option>พี่</option><option>น้อง</option><option>แฟน</option><option>สามี/ภรรยา</option><option>ลูก</option><option>ปู่/ย่า/ตา/ยาย</option><option>อื่นๆ</option></select></div><div class="f-group"><label class="f-label">วันเกิด</label><input class="f-input" id="aBirth" type="date"/></div></div>
+    <div class="f-group"><label class="f-label">Icon / Emoji</label><div class="icon-row"><span class="ip" onclick="byId('aIcon').value=this.textContent">👨</span><span class="ip" onclick="byId('aIcon').value=this.textContent">👩</span><span class="ip" onclick="byId('aIcon').value=this.textContent">👦</span><span class="ip" onclick="byId('aIcon').value=this.textContent">👧</span><span class="ip" onclick="byId('aIcon').value=this.textContent">👴</span><span class="ip" onclick="byId('aIcon').value=this.textContent">👵</span><span class="ip" onclick="byId('aIcon').value=this.textContent">💑</span></div><input class="f-input" id="aIcon" placeholder="👨" style="width:52px;text-align:center;font-size:18px;margin-top:6px"/></div>
+    <div class="f-group"><label class="f-label">หมายเหตุ</label><input class="f-input" id="aNote" placeholder="เพิ่มเติม..."/></div>
+    <div class="f-actions"><button class="f-save" onclick="saveAdd()">Save</button><button class="f-cancel" onclick="closeModal('addModal')">Cancel</button></div>`,
+
+  biz:`<div class="f-group"><label class="f-label">ชื่อธุรกิจ/โปรเจค</label><input class="f-input" id="aName" placeholder="ชื่อธุรกิจ..."/></div>
+    <div class="f-group"><label class="f-label">ประเภท</label><select class="f-select" id="aType"><option>ธุรกิจส่วนตัว</option><option>Side Project</option><option>Freelance</option><option>หุ้นส่วน</option></select></div>
+    <div class="f-grid2"><div class="f-group"><label class="f-label">รายได้/เดือน (฿)</label><input class="f-input" id="aIncome" type="number"/></div><div class="f-group"><label class="f-label">สถานะ</label><select class="f-select" id="aStatus"><option>กำลังทำ</option><option>วางแผน</option><option>หยุดชั่วคราว</option><option>ปิดแล้ว</option></select></div></div>
+    <div class="f-actions"><button class="f-save" onclick="saveAdd()">Save</button><button class="f-cancel" onclick="closeModal('addModal')">Cancel</button></div>`,
+
+  reward:`<div class="f-group"><label class="f-label">รางวัล</label><input class="f-input" id="aName" placeholder="ท่องเที่ยวญี่ปุ่น, ซื้อของขวัญ..."/></div>
+    <div class="f-group"><label class="f-label">ประเภท</label><select class="f-select" id="aRType"><option value="self">รางวัลตัวเอง</option><option value="other">รางวัลผู้อื่น</option></select></div>
+    <div class="f-group"><label class="f-label">เงื่อนไข / ขอบเขต</label><textarea class="f-textarea" id="aDesc" placeholder="เช่น เมื่อออมครบ 100K บาท, เมื่อวิ่ง 100 กม."></textarea></div>
+    <div class="f-grid2"><div class="f-group"><label class="f-label">งบประมาณ (฿)</label><input class="f-input" id="aBudget" type="number"/></div><div class="f-group"><label class="f-label">XP ที่ต้องใช้</label><input class="f-input" id="aXPCost" type="number" placeholder="500"/></div></div>
+    <div class="f-group"><label class="f-label">Icon</label><div class="icon-row"><span class="ip" onclick="byId('aIcon').value=this.textContent">🎁</span><span class="ip" onclick="byId('aIcon').value=this.textContent">✈️</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🍣</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🎮</span><span class="ip" onclick="byId('aIcon').value=this.textContent">👟</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🏖️</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🎭</span></div><input class="f-input" id="aIcon" placeholder="🎁" style="width:52px;text-align:center;font-size:16px;margin-top:6px"/></div>
+    <div class="f-actions"><button class="f-save" onclick="saveAdd()">Save</button><button class="f-cancel" onclick="closeModal('addModal')">Cancel</button></div>`,
+
+  todo:`<div class="f-group"><label class="f-label">รายการ</label><input class="f-input" id="aName" placeholder="สิ่งที่ต้องทำ..."/></div>
+    <div class="f-grid2"><div class="f-group"><label class="f-label">ประเภท</label><select class="f-select" id="aTType"><option value="today">วันนี้</option><option value="week">สัปดาห์นี้</option><option value="month">เดือนนี้</option><option value="year">ปีนี้</option></select></div><div class="f-group"><label class="f-label">Priority</label><select class="f-select" id="aPri"><option value="high">🔴 High</option><option value="med">🟡 Medium</option><option value="low">🟢 Low</option></select></div></div>
+    <div class="f-grid2"><div class="f-group"><label class="f-label">กำหนดส่ง</label><input class="f-input" id="aDeadline" type="datetime-local"/></div><div class="f-group"><label class="f-label">แจ้งเตือน</label><input class="f-input" id="aAlarm" type="datetime-local"/></div></div>
+    <div class="f-group"><label class="f-label">หมวดหมู่</label><select class="f-select" id="aCat"><option>ส่วนตัว</option><option>งาน</option><option>การเงิน</option><option>สุขภาพ</option><option>ครอบครัว</option><option>ธุรกิจ</option></select></div>
+    <div class="f-group"><label class="f-label">หมายเหตุ</label><textarea class="f-textarea" id="aNote" placeholder="รายละเอียดเพิ่มเติม..."></textarea></div>
+    <div class="f-actions"><button class="f-save" onclick="saveAdd()">Save</button><button class="f-cancel" onclick="closeModal('addModal')">Cancel</button></div>`,
+
+  quest:`<div class="f-group"><label class="f-label">ชื่อ Quest</label><input class="f-input" id="aName" placeholder="ออกกำลังกาย 30 วันติด, เก็บเงิน 50K..."/></div>
+    <div class="f-group"><label class="f-label">รายละเอียด</label><textarea class="f-textarea" id="aDesc" placeholder="บรรยาย Quest..."></textarea></div>
+    <div class="f-grid3"><div class="f-group"><label class="f-label">XP รางวัล</label><input class="f-input" id="aXP" type="number" placeholder="100"/></div><div class="f-group"><label class="f-label">ความยาก</label><select class="f-select" id="aDiff"><option value="easy">EASY</option><option value="med">MEDIUM</option><option value="hard">HARD</option></select></div><div class="f-group"><label class="f-label">กำหนด</label><input class="f-input" id="aDeadline" type="date"/></div></div>
+    <div class="f-group"><label class="f-label">ความคืบหน้า (เป้า)</label><input class="f-input" id="aTarget" type="number" placeholder="เช่น 30 วัน"/></div>
+    <div class="f-group"><label class="f-label">Icon</label><div class="icon-row"><span class="ip" onclick="byId('aIcon').value=this.textContent">⚔️</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🏃</span><span class="ip" onclick="byId('aIcon').value=this.textContent">💰</span><span class="ip" onclick="byId('aIcon').value=this.textContent">📚</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🏋️</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🧘</span><span class="ip" onclick="byId('aIcon').value=this.textContent">🎯</span></div><input class="f-input" id="aIcon" placeholder="⚔️" style="width:52px;text-align:center;font-size:16px;margin-top:6px"/></div>
+    <div class="f-actions"><button class="f-save" onclick="saveAdd()">Save</button><button class="f-cancel" onclick="closeModal('addModal')">Cancel</button></div>`
+};
+
+const addTitles={loan:'+ Add Loan',saving:'+ Add Saving',expense:'+ Add Expense',fingoal:'+ Add Financial Goal',goal:'+ Add Life Goal',member:'+ Add Family Member',biz:'+ Add Business',reward:'+ Add Reward',todo:'+ Add Task',quest:'+ Add Quest'};
+
+function openAdd(type){
+  currentAddType=type;
+  setText('addModalTitle',addTitles[type]||'+ Add');
+  byId('addModalBody').innerHTML=addForms[type]||'';
+  openModal('addModal');
+}
+
+function saveAdd(){
+  const name=byId('aName')?.value.trim();
+  if(!name){toast('Error','กรุณาใส่ชื่อ','var(--red)');return;}
+  const icon=byId('aIcon')?.value.trim();
+  if(currentAddType==='loan'){
+    const fin=DB.load('fin');
+    fin.loans.push({name,icon:icon||'🏠',monthly:+byId('aMo')?.value||0,installments:+byId('aTotal')?.value||1,paid:+byId('aPaid')?.value||0,dueDay:+byId('aDue')?.value||1});
+    DB.set('fin',fin); renderFin();
+  } else if(currentAddType==='saving'){
+    const fin=DB.load('fin');
+    fin.savings.push({name,icon:icon||'💎',balance:+byId('aBal')?.value||0,saveMonthly:+byId('aSmo')?.value||0,goal:+byId('aGoal')?.value||0});
+    DB.set('fin',fin); renderFin();
+  } else if(currentAddType==='expense'){
+    const fin=DB.load('fin');
+    fin.expenses.push({name,icon:icon||'💡',amount:+byId('aAmt')?.value||0,dueDay:+byId('aDue')?.value||1});
+    DB.set('fin',fin); renderFin();
+  } else if(currentAddType==='fingoal'){
+    const fin=DB.load('fin');
+    fin.goals.push({name,target:+byId('aTarget')?.value||0,current:+byId('aCurrent')?.value||0,deadline:byId('aDeadline')?.value||''});
+    DB.set('fin',fin); renderFin();
+  } else if(currentAddType==='goal'){
+    const future=DB.load('future');
+    future.push({name,cat:byId('aCat')?.value||'🎯',status:byId('aStatus')?.value||'dream',budget:+byId('aBudget')?.value||0,deadline:byId('aDeadline')?.value||'',desc:byId('aDesc')?.value||''});
+    DB.set('future',future); renderFuture();
+    setText('dashGoals',DB.load('future').length);
+  } else if(currentAddType==='member'){
+    const fam=DB.load('family');
+    fam.push({name,rel:byId('aRel')?.value||'',birth:byId('aBirth')?.value||'',icon:icon||'👨',note:byId('aNote')?.value||''});
+    DB.set('family',fam); renderFamily();
+    setText('dashFam',DB.load('family').length);
+  } else if(currentAddType==='biz'){
+    const biz=DB.load('biz');
+    biz.projects.push({name,type:byId('aType')?.value||'',income:+byId('aIncome')?.value||0,status:byId('aStatus')?.value||''});
+    DB.set('biz',biz); renderBizProjects();
+  } else if(currentAddType==='reward'){
+    const spc=DB.load('special');
+    const rtype=byId('aRType')?.value||'self';
+    const r={name,icon:icon||'🎁',desc:byId('aDesc')?.value||'',budget:+byId('aBudget')?.value||0,xpCost:+byId('aXPCost')?.value||0,done:false};
+    if(rtype==='self')spc.self.push(r); else spc.other.push(r);
+    DB.set('special',spc); renderSpecial();
+    setText('dashRewards',spc.self.length+spc.other.length);
+  } else if(currentAddType==='todo'){
+    const todos=DB.load('todo');
+    todos.push({id:Date.now(),name,type:byId('aTType')?.value||'today',priority:byId('aPri')?.value||'med',deadline:byId('aDeadline')?.value||'',alarm:byId('aAlarm')?.value||'',cat:byId('aCat')?.value||'ส่วนตัว',note:byId('aNote')?.value||'',done:false});
+    DB.set('todo',todos); renderTodo(); updateTodoCount();
+  } else if(currentAddType==='quest'){
+    const quests=DB.load('quest');
+    quests.push({id:Date.now(),name,icon:icon||'⚔️',desc:byId('aDesc')?.value||'',xp:+byId('aXP')?.value||100,diff:byId('aDiff')?.value||'easy',deadline:byId('aDeadline')?.value||'',target:+byId('aTarget')?.value||0,progress:0,done:false});
+    DB.set('quest',quests); renderQuest(); renderSideQuests();
+  }
+  closeModal('addModal');
+  toast('Saved ✓',`"${name}" บันทึกแล้ว`,'var(--lime)');
+  Log.ok('Added: '+name);
+}
+
+/* ═══ RENDER FINANCE ═══ */
+function renderFin(){
+  const fin=DB.load('fin');
+  let debt=0,sav=0,due=0;
+  // Loans
+  const ll=byId('loanList');
+  if(ll){ll.innerHTML='';
+    if(!fin.loans.length)ll.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ยังไม่มีข้อมูล · กด + Loan</div>';
+    fin.loans.forEach((l,i)=>{
+      debt+=l.monthly||0;
+      const rem=(l.installments||1)-(l.paid||0);
+      const pct=Math.round((l.paid||0)/(l.installments||1)*100);
+      const d=daysLeft(l.dueDay||1); if(d<=7)due++;
+      const dc=d<=3?'var(--red)':d<=7?'var(--orange)':'var(--tx2)';
+      ll.insertAdjacentHTML('beforeend',`<div class="entry-row">
+        <div class="entry-ico">${l.icon||'🏠'}</div>
+        <div class="entry-info"><div class="entry-name">${l.name}</div>
+          <div class="entry-sub">เหลือ ${rem} งวด · due <span style="color:${dc}">${d}d (วัน ${l.dueDay})</span></div>
+          <div class="entry-prog"><div class="entry-prog-fill" style="width:${pct}%;background:var(--fin)"></div></div>
+        </div>
+        <div class="entry-right"><div class="entry-val" style="color:var(--red)">฿${fmt(l.monthly)}</div><div class="entry-vsub">${pct}% done</div></div>
+        <div class="entry-actions"><button class="btn btn-icon btn-sm del" onclick="delEntry('loan',${i})">✕</button></div>
+      </div>`);
+    });
+  }
+  // Savings
+  const sl=byId('savList');
+  if(sl){sl.innerHTML='';
+    if(!fin.savings.length)sl.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ยังไม่มีข้อมูล · กด + Saving</div>';
+    fin.savings.forEach((s,i)=>{
+      sav+=s.balance||0;
+      const pct=s.goal?Math.min(100,Math.round((s.balance||0)/s.goal*100)):null;
+      sl.insertAdjacentHTML('beforeend',`<div class="entry-row">
+        <div class="entry-ico">${s.icon||'💎'}</div>
+        <div class="entry-info"><div class="entry-name">${s.name}</div>
+          <div class="entry-sub">${s.saveMonthly?'+฿'+fmt(s.saveMonthly)+'/mo':''}</div>
+          ${pct!==null?`<div class="entry-prog"><div class="entry-prog-fill" style="width:${pct}%;background:var(--hlth)"></div></div>`:''}
+        </div>
+        <div class="entry-right"><div class="entry-val" style="color:var(--hlth)">฿${fmt(s.balance)}</div>${pct!==null?`<div class="entry-vsub">${pct}% of ฿${fmt(s.goal)}</div>`:''}</div>
+        <div class="entry-actions"><button class="btn btn-icon btn-sm del" onclick="delEntry('saving',${i})">✕</button></div>
+      </div>`);
+    });
+  }
+  // Expenses
+  const el=byId('expList');
+  if(el){el.innerHTML='';
+    if(!fin.expenses.length)el.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ยังไม่มีข้อมูล · กด + Expense</div>';
+    fin.expenses.forEach((ex,i)=>{
+      debt+=ex.amount||0;
+      const d=daysLeft(ex.dueDay||1); if(d<=7)due++;
+      const dc=d<=3?'var(--red)':d<=7?'var(--orange)':'var(--tx2)';
+      el.insertAdjacentHTML('beforeend',`<div class="entry-row">
+        <div class="entry-ico">${ex.icon||'💡'}</div>
+        <div class="entry-info"><div class="entry-name">${ex.name}</div><div class="entry-sub">due <span style="color:${dc}">${d}d (วัน ${ex.dueDay})</span></div></div>
+        <div class="entry-right"><div class="entry-val" style="color:var(--red)">฿${fmt(ex.amount)}</div></div>
+        <div class="entry-actions"><button class="btn btn-icon btn-sm del" onclick="delEntry('expense',${i})">✕</button></div>
+      </div>`);
+    });
+  }
+  // Financial goals
+  const gl=byId('finGoalList');
+  if(gl){gl.innerHTML='';
+    if(!fin.goals?.length)gl.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ตั้งเป้าหมายการเงิน</div>';
+    fin.goals?.forEach((g,i)=>{
+      const pct=g.target?Math.min(100,Math.round((g.current||0)/g.target*100)):0;
+      gl.insertAdjacentHTML('beforeend',`<div class="entry-row">
+        <div class="entry-info"><div class="entry-name">🎯 ${g.name}</div>
+          <div class="entry-sub">฿${fmt(g.current)} / ฿${fmt(g.target)}${g.deadline?' · '+g.deadline:''}</div>
+          <div class="entry-prog"><div class="entry-prog-fill" style="width:${pct}%;background:var(--fut)"></div></div>
+        </div>
+        <div class="entry-right"><div class="entry-val" style="color:var(--fut)">${pct}%</div></div>
+        <div class="entry-actions"><button class="btn btn-icon btn-sm del" onclick="delEntry('fingoal',${i})">✕</button></div>
+      </div>`);
+    });
+  }
+  // Update totals
+  setText('finSav',fmt(sav)); setText('finDebt',fmt(debt)); setText('finNet',fmt(sav-debt)); setText('finDue',due);
+  setText('dashFinVal',fmt(sav)); setText('statSav','฿'+fmt(sav));
+}
+
+function delEntry(type,idx){
+  if(!confirm('ลบรายการนี้?'))return;
+  if(type==='fingoal'){const fin=DB.load('fin');fin.goals.splice(idx,1);DB.set('fin',fin);}
+  else{const fin=DB.load('fin');fin[type==='loan'?'loans':type==='saving'?'savings':'expenses'].splice(idx,1);DB.set('fin',fin);}
+  renderFin();
+}
+
+/* ═══ RENDER FUTURE ═══ */
+function renderFuture(){
+  const future=DB.load('future');
+  const cols={dream:byId('k-dream'),plan:byId('k-plan'),progress:byId('k-progress'),done:byId('k-done')};
+  Object.values(cols).forEach(c=>{if(c)c.innerHTML='';});
+  if(!future.length){byId('k-dream').innerHTML='<div style="color:var(--tx2);font-size:10px;padding:10px;text-align:center">กด + Add Goal</div>';return;}
+  future.forEach((g,i)=>{
+    const col=cols[g.status]||cols.dream;
+    if(!col)return;
+    const colors={dream:'#555',plan:'var(--biz)',progress:'var(--orange)',done:'var(--hlth)'};
+    col.insertAdjacentHTML('beforeend',`<div class="kanban-item">
+      <div class="kanban-item-title">${g.cat} ${g.name}</div>
+      ${g.deadline?`<div style="font-size:9px;color:var(--tx2);margin-top:3px">📅 ${g.deadline}</div>`:''}
+      ${g.budget?`<div style="font-size:10px;color:var(--fin);margin-top:3px">฿${fmt(g.budget)}</div>`:''}
+      ${g.desc?`<div style="font-size:10px;color:var(--tx1);margin-top:4px;line-height:1.4">${g.desc.slice(0,60)}${g.desc.length>60?'...':''}</div>`:''}
+      <div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="btn btn-sm" style="font-size:9px;padding:2px 8px;color:var(--red)" onclick="delFuture(${i})">✕</button></div>
+    </div>`);
+  });
+  setText('dashGoals',future.length);
+}
+
+function delFuture(i){if(!confirm('ลบ?'))return;const f=DB.load('future');f.splice(i,1);DB.set('future',f);renderFuture();}
+
+/* ═══ RENDER FAMILY ═══ */
+function renderFamily(){
+  const fam=DB.load('family');
+  const grid=byId('familyGrid');
+  if(!grid)return;
+  grid.innerHTML='';
+  if(!fam.length){grid.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:20px;text-align:center;background:var(--bg1);border-radius:var(--r16);border:1px dashed var(--b1)">เพิ่มสมาชิกครอบครัว</div>';return;}
+  fam.forEach((m,i)=>{
+    const age=m.birth?Math.floor((Date.now()-new Date(m.birth))/(365.25*86400000)):null;
+    grid.insertAdjacentHTML('beforeend',`<div class="family-card">
+      <div class="family-avatar" style="background:linear-gradient(135deg,var(--fam-d),var(--fut-d))">${m.icon||'👨'}</div>
+      <div class="family-name">${m.name}</div>
+      <div class="family-rel">${m.rel}</div>
+      ${age!==null?`<div class="family-birth">อายุ ${age} ปี</div>`:''}
+      ${m.note?`<div style="font-size:9px;color:var(--tx2);margin-top:4px">${m.note}</div>`:''}
+      <button class="btn btn-sm" style="color:var(--red);margin-top:8px;font-size:9px" onclick="delFamily(${i})">ลบ</button>
+    </div>`);
+  });
+  setText('dashFam',fam.length);
+}
+
+function delFamily(i){if(!confirm('ลบ?'))return;const f=DB.load('family');f.splice(i,1);DB.set('family',f);renderFamily();}
+
+/* ═══ BUSINESS ═══ */
+function loadBusiness(){
+  const biz=DB.load('biz');
+  const v=(id,val)=>{const e=byId(id);if(e)e.value=val||'';};
+  v('bizRole',biz.role); v('bizCompany',biz.company); v('bizSalary',biz.salary); v('bizCareerGoal',biz.careerGoal);
+  renderBizProjects();
+  setText('dashBiz',biz.role||'—');
+}
+
+function saveBusiness(){
+  const biz=DB.load('biz');
+  biz.role=byId('bizRole')?.value||''; biz.company=byId('bizCompany')?.value||'';
+  biz.salary=byId('bizSalary')?.value||''; biz.careerGoal=byId('bizCareerGoal')?.value||'';
+  DB.set('biz',biz); toast('Saved','Business info updated','var(--biz)'); Log.ok('Business saved');
+  setText('dashBiz',biz.role||'—');
+}
+
+function renderBizProjects(){
+  const biz=DB.load('biz');
+  const el=byId('bizList'); if(!el)return;
+  el.innerHTML='';
+  if(!biz.projects?.length){el.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">เพิ่มธุรกิจ</div>';return;}
+  biz.projects.forEach((p,i)=>{
+    el.insertAdjacentHTML('beforeend',`<div class="entry-row">
+      <div class="entry-ico">🚀</div>
+      <div class="entry-info"><div class="entry-name">${p.name}</div><div class="entry-sub">${p.type} · ${p.status}</div></div>
+      ${p.income?`<div class="entry-right"><div class="entry-val" style="color:var(--hlth)">฿${fmt(p.income)}</div><div class="entry-vsub">/เดือน</div></div>`:''}
+      <div class="entry-actions"><button class="btn btn-icon btn-sm del" onclick="delBiz(${i})">✕</button></div>
+    </div>`);
+  });
+}
+
+function delBiz(i){if(!confirm('ลบ?'))return;const b=DB.load('biz');b.projects.splice(i,1);DB.set('biz',b);renderBizProjects();}
+
+/* ═══ SPECIAL ═══ */
+function renderSpecial(){
+  const spc=DB.load('special');
+  const renderRewards=(list,elId)=>{
+    const el=byId(elId); if(!el)return;
+    el.innerHTML='';
+    if(!list.length){el.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ยังไม่มีรางวัล</div>';return;}
+    list.forEach((r,i)=>{
+      el.insertAdjacentHTML('beforeend',`<div class="reward-card">
+        <div class="reward-ico">${r.icon||'🎁'}</div>
+        <div class="reward-info"><div class="reward-name">${r.name}</div><div class="reward-cond">${r.desc||''}</div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            ${r.budget?`<span class="badge" style="color:var(--fin)">฿${fmt(r.budget)}</span>`:''}
+            ${r.xpCost?`<span class="badge" style="color:var(--qst)">${r.xpCost} XP</span>`:''}
+          </div>
+        </div>
+        <div class="reward-status">${r.done?'✅':''}</div>
+      </div>`);
+    });
+  };
+  renderRewards(spc.self,'selfRewards');
+  renderRewards(spc.other,'otherRewards');
+  setText('dashRewards',spc.self.length+spc.other.length);
+}
+
+/* ═══ TODO ═══ */
+let todoFilter='today';
+function filterTodo(f,btn){
+  todoFilter=f;
+  document.querySelectorAll('#page-todo .btn').forEach(b=>b.classList.remove('btn-primary'));
+  if(btn)btn.classList.add('btn-primary');
+  renderTodo();
+}
+
+function renderTodo(){
+  const todos=DB.load('todo');
+  const el=byId('todoList'); if(!el)return;
+  el.innerHTML='';
+  const now=new Date();
+  const filtered=todoFilter==='all'?todos:todos.filter(t=>t.type===todoFilter||(todoFilter==='today'&&t.type==='today'));
+  if(!filtered.length){el.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:20px;text-align:center;background:var(--bg1);border-radius:var(--r16);border:1px solid var(--b0)">ไม่มีรายการใน filter นี้</div>';return;}
+  filtered.forEach((t,i)=>{
+    const idx=todos.indexOf(t);
+    const overdue=t.deadline&&new Date(t.deadline)<now&&!t.done;
+    el.insertAdjacentHTML('beforeend',`<div class="todo-item ${t.done?'done':''} ${t.priority?'priority-'+t.priority:''}" onclick="toggleTodo(${idx})">
+      <div class="todo-check">${t.done?'✓':''}</div>
+      <div style="flex:1;min-width:0">
+        <div class="todo-text">${t.name}</div>
+        <div class="todo-meta">
+          <span>${t.cat||''}</span>
+          ${t.deadline?`<span style="color:${overdue?'var(--red)':'var(--tx2)'}">${overdue?'⚠ ':''}${t.deadline.replace('T',' ').slice(0,16)}</span>`:''}
+          ${t.alarm?`<span class="todo-alarm">⏰ ${t.alarm.replace('T',' ').slice(0,16)}</span>`:''}
+          ${t.note?`<span style="color:var(--tx2)">${t.note.slice(0,30)}</span>`:''}
+        </div>
+      </div>
+      <button class="btn btn-icon btn-sm del" onclick="event.stopPropagation();delTodo(${idx})">✕</button>
+    </div>`);
+  });
+  updateTodoCount();
+}
+
+function toggleTodo(idx){
+  const todos=DB.load('todo');
+  todos[idx].done=!todos[idx].done;
+  DB.set('todo',todos); renderTodo();
+  if(todos[idx].done){toast('Task Done! ✓',todos[idx].name,'var(--lime)');addXP(25);}
+}
+
+function delTodo(idx){if(!confirm('ลบ?'))return;const t=DB.load('todo');t.splice(idx,1);DB.set('todo',t);renderTodo();}
+function updateTodoCount(){const t=DB.load('todo');const left=t.filter(x=>!x.done).length;setText('dashTodo',left);setText('statTodo',left);}
+
+/* ═══ QUEST ═══ */
+function renderQuest(){
+  const quests=DB.load('quest');
+  const active=byId('activeQuests'),done=byId('doneQuests');
+  if(active)active.innerHTML='';if(done)done.innerHTML='';
+  const totalXP=quests.filter(q=>q.done).reduce((s,q)=>s+(q.xp||0),0);
+  if(!quests.length){
+    if(active)active.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">เพิ่ม Quest แรกได้เลย!</div>';
+    return;
+  }
+  quests.forEach((q,i)=>{
+    const pct=q.target?Math.min(100,Math.round((q.progress||0)/q.target*100)):0;
+    const diffColor=q.diff==='hard'?'var(--red)':q.diff==='med'?'var(--orange)':'var(--hlth)';
+    const html=`<div class="quest-item ${q.done?'done':''}" onclick="toggleQuest(${i})">
+      <div class="quest-head">
+        <div class="quest-icon">${q.icon||'⚔️'}</div>
+        <div class="quest-name">${q.name}</div>
+        <div class="quest-xp">+${q.xp} XP</div>
+        <div class="quest-diff" style="color:${diffColor};border-color:${diffColor}">${(q.diff||'easy').toUpperCase()}</div>
+      </div>
+      ${q.desc?`<div class="quest-desc">${q.desc}</div>`:''}
+      ${q.target?`<div class="quest-prog-row"><span>ความคืบหน้า</span><span>${q.progress||0}/${q.target}</span></div><div class="prog"><div class="prog-fill" style="width:${pct}%;background:var(--qst)"></div></div>`:''}
+      ${!q.done?`<div style="display:flex;gap:6px;margin-top:8px">
+        ${q.target?`<button class="btn btn-sm" onclick="event.stopPropagation();progressQuest(${i})">+1 Progress</button>`:''}
+        <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();completeQuest(${i})">✓ Complete</button>
+        <button class="btn btn-icon btn-sm del" onclick="event.stopPropagation();delQuest(${i})">✕</button>
+      </div>`:''}
+    </div>`;
+    const el=q.done?done:active;
+    if(el)el.insertAdjacentHTML('beforeend',html);
+  });
+  if(active&&!quests.filter(q=>!q.done).length)active.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ไม่มี Quest ที่กำลัง active</div>';
+  if(done&&!quests.filter(q=>q.done).length)done.innerHTML='<div style="color:var(--tx2);font-size:11px;padding:12px;text-align:center;background:var(--bg2);border-radius:var(--r12)">ยังไม่มี Quest ที่เสร็จ</div>';
+  renderSideQuests();
+}
+
+function toggleQuest(i){const q=DB.load('quest');if(!q[i].done)completeQuest(i);else{q[i].done=false;DB.set('quest',q);renderQuest();}}
+function completeQuest(i){
+  const q=DB.load('quest'); q[i].done=true; DB.set('quest',q);
+  addXP(q[i].xp||100);
+  toast('Quest Complete! 🎉',`+${q[i].xp} XP — ${q[i].name}`,'var(--qst)');
+  Log.ok('Quest done: '+q[i].name);
+  renderQuest();
+}
+function progressQuest(i){
+  const q=DB.load('quest'); q[i].progress=(q[i].progress||0)+1; DB.set('quest',q);
+  if(q[i].target&&q[i].progress>=q[i].target)completeQuest(i); else{renderQuest();toast('Progress!','อัพเดต quest แล้ว','var(--qst)');}
+}
+function delQuest(i){if(!confirm('ลบ Quest?'))return;const q=DB.load('quest');q.splice(i,1);DB.set('quest',q);renderQuest();}
+
+function renderSideQuests(){
+  const quests=DB.load('quest').filter(q=>!q.done).slice(0,4);
+  const el=byId('sideQuests'); if(!el)return;
+  el.innerHTML='';
+  if(!quests.length){el.innerHTML='<div style="font-size:10px;color:var(--tx2);text-align:center;padding:10px">ยังไม่มี Quest</div>';return;}
+  quests.forEach(q=>{
+    const pct=q.target?Math.min(100,Math.round((q.progress||0)/q.target*100)):0;
+    el.insertAdjacentHTML('beforeend',`<div class="sq-item">
+      <div class="sq-icon">${q.icon||'⚔️'}</div>
+      <div style="flex:1;min-width:0"><div class="sq-name">${q.name}</div>
+        <div style="font-size:9px;color:var(--qst);margin-top:1px">+${q.xp} XP</div>
+        ${q.target?`<div class="sq-bar"><div class="sq-fill" style="width:${pct}%"></div></div>`:''}
+      </div>
+    </div>`);
+  });
+}
+
+/* ═══ HEALTH ═══ */
+function loadHealth(){
+  const h=DB.load('health');
+  const v=(id,val)=>{const e=byId(id);if(e)e.value=val||'';};
+  Object.entries(h).forEach(([k,val])=>v('h'+k.charAt(0).toUpperCase()+k.slice(1),val));
+  if(h.weight&&h.height)calcBMI();
+}
+
+function calcBMI(){
+  const w=parseFloat(byId('hWeight')?.value||0);
+  const h=parseFloat(byId('hHeight')?.value||0)/100;
+  if(!w||!h)return;
+  const bmi=(w/(h*h)).toFixed(1);
+  const result=byId('bmiResult'); if(result)result.style.display='block';
+  setText('bmiVal',bmi);
+  let status,color,pct;
+  if(bmi<18.5){status='น้ำหนักน้อย';color='var(--biz)';pct=30;}
+  else if(bmi<25){status='ปกติ ✓';color='var(--hlth)';pct=55;}
+  else if(bmi<30){status='น้ำหนักเกิน';color='var(--orange)';pct=75;}
+  else{status='อ้วน';color='var(--red)';pct=90;}
+  const sv=byId('bmiStatus'); if(sv){sv.textContent=status;sv.style.color=color;}
+  const bbar=byId('bmiBar'); if(bbar){bbar.style.width=pct+'%';bbar.style.background=color;}
+  setText('dashBMI','BMI '+bmi);
+}
+
+function saveHealth(){
+  const h={};
+  ['Weight','Height','Blood','Gender','Conditions','Meds','Allergy','Goal','ExType','ExDays','ExMins','ExGoal','Cal','Avoid','Add','Water'].forEach(k=>{
+    h[k.charAt(0).toLowerCase()+k.slice(1)]=byId('h'+k)?.value||'';
+  });
+  DB.set('health',h); toast('Saved','Health data updated','var(--hlth)'); Log.ok('Health saved');
+}
+
+/* ═══ PROFILE ═══ */
+function loadProfile(){
+  const u=DB.load('user');
+  const v=(id,val)=>{const e=byId(id);if(e)e.value=val||'';};
+  v('pName',u.name); v('pClass',u.class); v('pAge',u.age); v('pTargetAge',u.targetAge||80); v('pEmail',u.email); v('pBio',u.bio||'');
+  setText('profileNameDisp',(u.name||'PROTON').toUpperCase());
+  setText('profileClassDisp',u.class||'Life Engineer');
+  setText('acctTypeDisp',u.type==='google'?`Google (${u.email})`:'Guest Account');
+  CE.load();
+  if(u.age&&u.targetAge)updateLifetime();
+}
+
+function saveProfile(){
+  const u=DB.load('user');
+  u.name=byId('pName')?.value||u.name;
+  u.class=byId('pClass')?.value||u.class;
+  u.age=byId('pAge')?.value||u.age;
+  u.targetAge=byId('pTargetAge')?.value||u.targetAge;
+  u.email=byId('pEmail')?.value||u.email;
+  u.bio=byId('pBio')?.value||u.bio;
+  DB.set('user',u);
+  applyUser(u);
+  updateLifetime();
+  toast('Saved ✓','Profile updated!','var(--lime)');
+  Log.ok('Profile saved');
+}
+
+function applyUser(u){
+  setText('sbarName',(u.name||'Proton').toUpperCase());
+  setText('sbarClass',u.class||'Life Engineer');
+  setText('sbarLv','LV '+(u.lv||1));
+  setText('navLv','LV'+(u.lv||1));
+  setText('profileNameDisp',(u.name||'PROTON').toUpperCase());
+  setText('profileClassDisp',u.class||'Life Engineer');
+}
+
+/* ═══ AI ═══ */
+let aiSrc='claude', aiHist=[];
+const aiCfg={
+  claude:{label:'Claude · sonnet-4-6',color:'var(--purple)',key:'key_claude'},
+  gpt:{label:'GPT-4o · OpenAI',color:'var(--hlth)',key:'key_gpt'},
+  gemini:{label:'Gemini · Google',color:'var(--biz)',key:'key_gemini'}
+};
+
+function setAISrc(btn){
+  document.querySelectorAll('.src-btn').forEach(b=>b.className='src-btn');
+  btn.classList.add('ac-'+btn.dataset.s);
+  aiSrc=btn.dataset.s;
+  setText('aiSrcLbl',aiCfg[aiSrc].label);
+  Log.info('AI: '+aiCfg[aiSrc].label);
+}
+
+function addBubble(txt,isUser,color){
+  const chat=byId('aiChat');
+  const b=document.createElement('div');
+  b.className='ai-bubble'+(isUser?' user':'');
+  if(color&&!isUser)b.style.borderLeft='3px solid '+color;
+  b.textContent=txt;
+  chat.appendChild(b); chat.scrollTop=chat.scrollHeight;
+  return b;
+}
+
+async function sendAI(){
+  const inp=byId('aiIn'); const val=inp.value.trim(); if(!val)return;
+  inp.value='';
+  addBubble(val,true);
+  aiHist.push({role:'user',content:val});
+  const thinkB=addBubble('',false,aiCfg[aiSrc].color);
+  const td=document.createElement('div');td.className='thinking-dots';td.innerHTML='<span>•</span><span>•</span><span>•</span>';thinkB.appendChild(td);
+  const sendBtn=byId('aiSend'); sendBtn.disabled=true;
+  const key=localStorage.getItem(aiCfg[aiSrc].key);
+  let reply=''; let ok=false;
+  try{
+    if(aiSrc==='claude'){
+      if(!key){reply='⚠️ ยังไม่มี Claude API key — กด 🔑 ใส่ก่อนนะ!';}
+      else{
+        const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+          headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-allow-browser':'true'},
+          body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,
+            system:'คุณคือ Electron AI ผู้ช่วยส่วนตัวใน Life OS ของ โปรตอน ช่วยด้านการเงิน การเทรด สุขภาพ ครอบครัว ธุรกิจ และการจัดการชีวิต ตอบกระชับ เป็นกันเอง ใช้ภาษาไทย',
+            messages:aiHist})});
+        if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||`HTTP ${r.status}`);}
+        const d=await r.json(); reply=d.content?.[0]?.text||'[ไม่มีข้อความ]'; ok=true;
+      }
+    } else if(aiSrc==='gpt'){
+      if(!key){reply='⚠️ ยังไม่มี OpenAI API key';}
+      else{
+        const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+          body:JSON.stringify({model:'gpt-4o',max_tokens:800,messages:[{role:'system',content:'คุณคือ Electron AI ผู้ช่วยใน Life OS ตอบกระชับ เป็นกันเอง ภาษาไทย'},...aiHist]})});
+        if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||`HTTP ${r.status}`);}
+        const d=await r.json(); reply=d.choices?.[0]?.message?.content||'[ไม่มีข้อความ]'; ok=true;
+      }
+    } else {
+      if(!key){reply='⚠️ ยังไม่มี Gemini API key';}
+      else{
+        const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${key}`,{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({contents:aiHist.map(m=>({role:m.role==='assistant'?'model':m.role,parts:[{text:m.content}]})),
+            systemInstruction:{parts:[{text:'คุณคือ Electron AI ผู้ช่วยใน Life OS ตอบกระชับ เป็นกันเอง ภาษาไทย'}]}})});
+        if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||`HTTP ${r.status}`);}
+        const d=await r.json(); reply=d.candidates?.[0]?.content?.parts?.[0]?.text||'[ไม่มีข้อความ]'; ok=true;
+      }
+    }
+  }catch(e){reply=`❌ Error: ${e.message.slice(0,100)}`;Log.err('AI: '+e.message);}
+  if(ok)aiHist.push({role:'assistant',content:reply});
+  else aiHist.pop();
+  thinkB.innerHTML=''; thinkB.textContent=reply;
+  byId('aiChat').scrollTop=9999; sendBtn.disabled=false;
+  if(ok)Log.ok('AI replied');
+}
+
+function saveAPIKeys(){
+  [['kC','key_claude'],['kG','key_gpt'],['kGem','key_gemini']].forEach(([id,k])=>{
+    const v=byId(id)?.value.trim(); if(v)localStorage.setItem(k,v);
+  });
+  closeModal('keyModal'); toast('Keys Saved 🔑','API keys updated','var(--lime)'); Log.ok('Keys saved');
+}
+
+/* ═══ LOGIN SCREEN ═══ */
+const LS = {
+  google(){
+    byId('lgBtns').style.opacity='.4'; byId('lgBtns').style.pointerEvents='none';
+    byId('lgLoading').classList.add('show');
+    setTimeout(()=>{
+      DB.set('user',{...DB.def.user,name:'Proton',email:'proton@gmail.com',type:'google',lv:1});
+      byId('lgLoading').classList.remove('show');
+      this.enter();
+    },1600);
+  },
+  toggleGuest(){
+    byId('guestWrap').classList.add('show');
+    byId('enterBtn').classList.add('show');
+    byId('guestName').focus();
+  },
+  onName(){
+    const v=byId('guestName').value.trim();
+    const btn=byId('enterBtn');
+    btn.textContent=v?`▶ เข้าสู่ Life OS เป็น "${v}"`:'▶ เข้าสู่ Life OS';
+  },
+  enter(){
+    const name=byId('guestName')?.value.trim()||'Proton';
+    if(!DB.get('user'))DB.set('user',{...DB.def.user,name,type:'guest',lv:1});
+    const el=byId('loginScreen');
+    el.classList.add('hide');
+    setTimeout(()=>{el.style.display='none'; App.boot();},550);
+  },
+  logout(){if(!confirm('ออกจากระบบ?'))return;DB.set('user',null);location.reload();},
+  show(){const el=byId('loginScreen');el.style.display='flex';el.classList.remove('hide');}
+};
+
+/* ═══ APP BOOT ═══ */
+const App = {
+  boot(){
+    byId('appShell').style.display='grid';
+    const u=DB.load('user');
+    applyUser(u);
+    initClock();
+    CE.load();
+    updateHP(currentHP);
+    addXP(0); // init XP display
+    updateLifetime();
+    renderFin();
+    renderSideQuests();
+    updateTodoCount();
+    // Restore data for dashboard
+    setText('dashGoals',DB.load('future').length);
+    setText('dashFam',DB.load('family').length);
+    const spc=DB.load('special'); setText('dashRewards',spc.self.length+spc.other.length);
+    const biz=DB.load('biz'); setText('dashBiz',biz.role||'—');
+    setTimeout(()=>{
+      toast(`ยินดีต้อนรับ ${u.name||'Proton'}! 🚀`,'Life OS v0.8 ready','var(--lime)');
+      Log.ok('v0.8 ready — '+u.name);
+      Log.info('8 modules active');
+    },400);
+  }
+};
+
+/* ═══ INIT ═══ */
+document.addEventListener('DOMContentLoaded',()=>{
+  const u=DB.get('user');
+  if(u){byId('loginScreen').style.display='none'; App.boot();}
+  else{byId('loginScreen').style.display='flex';}
+  // API keys pre-fill
+  byId('keyModal').addEventListener('click',()=>{
+    byId('kC').value=localStorage.getItem('key_claude')||'';
+    byId('kG').value=localStorage.getItem('key_gpt')||'';
+    byId('kGem').value=localStorage.getItem('key_gemini')||'';
+  },{once:false});
+  // Close HP popup when clicking outside
+  document.addEventListener('click',(e)=>{
+    if(!e.target.closest('.sbar-track')&&!e.target.closest('.hp-edit-popup'))
+      byId('hpEditPop')?.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
